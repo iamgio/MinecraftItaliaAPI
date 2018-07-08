@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import eu.iamgio.mcitaliaapi.exception.McItaliaRuntimeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -17,6 +18,15 @@ public class User {
 
     private Element getStatisticsRowProperty(int index) {
         return document.getElementsByClass("profile-counts forms").first().child(0).child(index);
+    }
+
+    private String getInfoProperty(String key) {
+        Element table = document.getElementsByClass("profile-more-info").first()
+                .getElementsByClass("collection-item").first();
+        for(Element element : table.getElementsByClass("row")) {
+            if(element.child(0).text().equals(key)) return element.child(1).text();
+        }
+        return null;
     }
 
     /**
@@ -78,5 +88,15 @@ public class User {
      */
     public int getFollowersCount() {
         return Integer.parseInt(document.getElementsByClass("col-sm-8").first().getElementsByTag("b").get(1).ownText());
+    }
+
+    /**
+     * @return User's average messages-per-day count
+     * @throws McItaliaRuntimeException if the user hasn't this information saved
+     */
+    public float getMessagesPerDayCount() throws McItaliaRuntimeException {
+        String s = getInfoProperty("Messaggi");
+        if(s == null) throw new McItaliaRuntimeException("User hasn't this info saved.");
+        return Float.parseFloat(s.split("\\(")[1].split(" ")[0]);
     }
 }
