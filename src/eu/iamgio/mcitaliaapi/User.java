@@ -211,7 +211,7 @@ public class User {
     }
 
     /**
-     * @return User's social networks as type=link
+     * @return User's social networks as TYPE=url
      */
     public HashMap<SocialNetwork, String> getSocialNetworks() {
         HashMap<SocialNetwork, String> socials = new HashMap<>();
