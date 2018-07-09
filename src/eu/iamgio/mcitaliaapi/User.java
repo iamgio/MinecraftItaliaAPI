@@ -5,6 +5,9 @@ import eu.iamgio.mcitaliaapi.exception.McItaliaRuntimeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Represents an user of Minecraft Italia
  * @author Gio
@@ -21,11 +24,13 @@ public class User {
         return document.getElementsByClass("profile-counts forms").first().child(0).child(index);
     }
 
-    private String getInfoProperty(String key) {
+    private Element getInfoProperty(String key) {
         Element table = document.getElementsByClass("profile-more-info").first()
                 .getElementsByClass("collection-item").first();
         for(Element element : table.getElementsByClass("row")) {
-            if(element.child(0).text().equals(key)) return element.child(1).text();
+            if(element.child(0).text().equals(key)) {
+                return element.child(1);
+            }
         }
         return null;
     }
@@ -96,8 +101,20 @@ public class User {
      * @throws McItaliaRuntimeException if the user hasn't this information saved
      */
     public float getMessagesPerDayCount() throws McItaliaRuntimeException {
-        String s = getInfoProperty("Messaggi");
-        if(s == null) throw new McItaliaRuntimeException("User hasn't this info saved.");
-        return Float.parseFloat(s.split("\\(")[1].split(" ")[0]);
+        Element e = getInfoProperty("Messaggi");
+        if(e == null) throw new McItaliaRuntimeException("User hasn't this info saved.");
+        return Float.parseFloat(e.text().split("\\(")[1].split(" ")[0]);
+    }
+
+    /**
+     * @return Date of user's registration
+     * @throws McItaliaRuntimeException if the user hasn't this information saved
+     */
+    public Date getRegistrationDate() throws McItaliaRuntimeException {
+        Element e = getInfoProperty("Iscritto dal");
+        if(e == null) throw new McItaliaRuntimeException("User hasn't this info saved.");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.parseLong(e.child(0).attr("data-timestamp") + "000"));
+        return calendar.getTime();
     }
 }
