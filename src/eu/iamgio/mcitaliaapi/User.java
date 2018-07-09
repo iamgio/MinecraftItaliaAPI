@@ -145,6 +145,12 @@ public class User {
         return url.substring(0, substringStart) + size + url.substring(substringEnd, url.length());
     }
 
+    public String getBio() throws MinecraftItaliaException {
+        Elements bio = document.getElementsByClass("profile-bio");
+        if(bio.size() == 0) throw new MinecraftItaliaException("The user does not have this information.");
+        return bio.first().getElementsByClass("collection-item").first().ownText();
+    }
+
     /**
      * @return User's average messages-per-day count
      * @throws MinecraftItaliaException if the user hasn't this information saved
