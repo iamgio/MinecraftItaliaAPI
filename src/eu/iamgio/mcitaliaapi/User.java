@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 /**
+ * Represents an user of Minecraft Italia
  * @author Gio
  */
 public class User {

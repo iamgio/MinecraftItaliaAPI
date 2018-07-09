@@ -16,6 +16,9 @@ public class HttpConnection {
     private String url;
     private Connection connection;
 
+    /**
+     * @param url URL of the web page
+     */
     public HttpConnection(String url) {
         this.url = url;
     }
