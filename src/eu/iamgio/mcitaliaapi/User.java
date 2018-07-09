@@ -105,7 +105,7 @@ public class User {
      */
     public float getMessagesPerDayCount() throws McItaliaRuntimeException {
         Element e = getInfoProperty("Messaggi");
-        if(e == null) throw new McItaliaRuntimeException("The user does not have this information.");
+        if(e == null) throw new McItaliaRuntimeException(McItaliaRuntimeException.NO_INFO);
         return Float.parseFloat(e.text().split("\\(")[1].split(" ")[0]);
     }
 
@@ -115,7 +115,7 @@ public class User {
      */
     public Date getRegistrationDate() throws McItaliaRuntimeException {
         Element e = getInfoProperty("Iscritto dal");
-        if(e == null) throw new McItaliaRuntimeException("The user does not have this information");
+        if(e == null) throw new McItaliaRuntimeException(McItaliaRuntimeException.NO_INFO);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(e.child(0).attr("data-timestamp") + "000"));
         return calendar.getTime();
