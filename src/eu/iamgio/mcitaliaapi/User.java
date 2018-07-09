@@ -59,7 +59,7 @@ public class User {
     /**
      * @return User's reputation
      */
-    public int getReputation() {
+    public int getReputationScore() {
         return Integer.parseInt(getStatisticsRowProperty(1).child(1).text());
     }
 
