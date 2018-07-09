@@ -24,7 +24,7 @@ public class User {
         return document.getElementsByClass("profile-counts forms").first().child(0).child(index);
     }
 
-    private Element getInfoProperty(String key) {
+    private Element getInfoProperty(String key) throws MinecraftItaliaException {
         Element table = document.getElementsByClass("profile-more-info").first()
                 .getElementsByClass("collection-item").first();
         for(Element element : table.getElementsByClass("row")) {
@@ -32,7 +32,7 @@ public class User {
                 return element.child(1);
             }
         }
-        return null;
+        throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
     }
 
     /**
@@ -105,7 +105,6 @@ public class User {
      */
     public float getMessagesPerDayCount() throws MinecraftItaliaException {
         Element element = getInfoProperty("Messaggi");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         try {
             return Float.parseFloat(element.text().split("\\(")[1].split(" ")[0]);
         } catch(ArrayIndexOutOfBoundsException e) {
@@ -119,7 +118,6 @@ public class User {
      */
     public Date getRegistrationDate() throws MinecraftItaliaException {
         Element element = getInfoProperty("Iscritto dal");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
         return calendar.getTime();
@@ -131,7 +129,6 @@ public class User {
      */
     public Date getLastVisitDate() throws MinecraftItaliaException {
         Element element = getInfoProperty("Ultima visita");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
         return calendar.getTime();
@@ -142,9 +139,7 @@ public class User {
      * @throws MinecraftItaliaException if the user hasn't this information saved
      */
     public String getRawOnlineTime() throws MinecraftItaliaException {
-        Element element = getInfoProperty("Tempo online");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
-        return element.text();
+        return getInfoProperty("Tempo online").text();
     }
 
     /**
@@ -194,9 +189,7 @@ public class User {
      * @throws MinecraftItaliaException if the user hasn't this information saved
      */
     public Gender getGender() throws MinecraftItaliaException {
-        Element element = getInfoProperty("Sesso");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
-        return element.text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
+        return getInfoProperty("Sesso").text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
     }
 
     /**
@@ -204,9 +197,7 @@ public class User {
      * @throws MinecraftItaliaException if the user hasn't this information saved
      */
     public String getProvenance() throws MinecraftItaliaException {
-        Element element = getInfoProperty("Provenienza");
-        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
-        return element.text();
+        return getInfoProperty("Provenienza").text();
     }
 
     public enum Gender { MALE, FEMALE }
