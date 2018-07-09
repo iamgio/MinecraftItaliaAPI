@@ -104,9 +104,13 @@ public class User {
      * @throws MinecraftItaliaException if the user hasn't this information saved
      */
     public float getMessagesPerDayCount() throws MinecraftItaliaException {
-        Element e = getInfoProperty("Messaggi");
-        if(e == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
-        return Float.parseFloat(e.text().split("\\(")[1].split(" ")[0]);
+        Element element = getInfoProperty("Messaggi");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        try {
+            return Float.parseFloat(element.text().split("\\(")[1].split(" ")[0]);
+        } catch(ArrayIndexOutOfBoundsException e) {
+            return 0F;
+        }
     }
 
     /**
@@ -114,10 +118,74 @@ public class User {
      * @throws MinecraftItaliaException if the user hasn't this information saved
      */
     public Date getRegistrationDate() throws MinecraftItaliaException {
-        Element e = getInfoProperty("Iscritto dal");
-        if(e == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        Element element = getInfoProperty("Iscritto dal");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(Long.parseLong(e.child(0).attr("data-timestamp") + "000"));
+        calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
         return calendar.getTime();
+    }
+
+    /**
+     * @return Date of user's last visit
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
+    public Date getLastVisitDate() throws MinecraftItaliaException {
+        Element element = getInfoProperty("Ultima visita");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
+        return calendar.getTime();
+    }
+
+    /**
+     * @return Time the user has spent online, unparsed
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
+    public String getRawOnlineTime() throws MinecraftItaliaException {
+        Element element = getInfoProperty("Tempo online");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        return element.text();
+    }
+
+    /**
+     * @return Time the user has spent online in millis
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
+    public long getOnlineTime() throws MinecraftItaliaException {
+        String raw = getRawOnlineTime();
+        String[] parts = raw.split(", ");
+        long time = 0L;
+        for(String part : parts) {
+            String[] subparts = part.split(" ");
+            short amount = Short.parseShort(subparts[0]);
+            String type = subparts[1];
+            switch(type) {
+                case "secondi":
+                case "secondo":
+                    time += amount * 1000;
+                    break;
+                case "minuti":
+                case "minuto":
+                    time += amount * 1000 * 60;
+                    break;
+                case "ore":
+                case "ora":
+                    time += amount * 1000 * 60 * 60;
+                    break;
+                case "giorni":
+                case "giorno":
+                    time += amount * 1000 * 60 * 60 * 24;
+                    break;
+                case "settimane":
+                case "settimana":
+                    time += amount * 1000 * 60 * 60 * 24 * 7;
+                    break;
+                case "anni":
+                case "anno":
+                    time += amount * 1000 * 60 * 60 * 24 * 365;
+                    break;
+            }
+        }
+        return time;
     }
 }
