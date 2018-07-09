@@ -5,8 +5,7 @@ import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Represents an user of Minecraft Italia
@@ -200,5 +199,35 @@ public class User {
         return getInfoProperty("Provenienza").text();
     }
 
+    /**
+     * @return User's badges
+     */
+    public List<String> getBadges() {
+        List<String> badges = new ArrayList<>();
+        for(Element element : document.getElementsByClass("badges-container").first().children()) {
+            badges.add(element.text());
+        }
+        return badges;
+    }
+
+    /**
+     * @return User's social networks as type=link
+     */
+    public HashMap<SocialNetwork, String> getSocialNetworks() {
+        HashMap<SocialNetwork, String> socials = new HashMap<>();
+        for(Element element : document.getElementsByClass("social").first().children()) {
+            String attr = element.attr("class");
+            socials.put(
+                    SocialNetwork.valueOf(attr.substring("profile_".length(), attr.length()).toUpperCase()),
+                    element.attr("href")
+            );
+        }
+        return socials;
+    }
+
     public enum Gender { MALE, FEMALE }
+
+    public enum SocialNetwork {
+        WEBSITE, FACEBOOK, GOOGLE_PLUS, YOUTUBE, STEAM, SKYPE, TELEGRAM, PATREON, PAYPAL, TWITCH
+    }
 }
