@@ -1,7 +1,7 @@
 package eu.iamgio.mcitaliaapi;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
-import eu.iamgio.mcitaliaapi.exception.McItaliaRuntimeException;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -101,21 +101,21 @@ public class User {
 
     /**
      * @return User's average messages-per-day count
-     * @throws McItaliaRuntimeException if the user hasn't this information saved
+     * @throws MinecraftItaliaException if the user hasn't this information saved
      */
-    public float getMessagesPerDayCount() throws McItaliaRuntimeException {
+    public float getMessagesPerDayCount() throws MinecraftItaliaException {
         Element e = getInfoProperty("Messaggi");
-        if(e == null) throw new McItaliaRuntimeException(McItaliaRuntimeException.NO_INFO);
+        if(e == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         return Float.parseFloat(e.text().split("\\(")[1].split(" ")[0]);
     }
 
     /**
      * @return Date of user's registration
-     * @throws McItaliaRuntimeException if the user hasn't this information saved
+     * @throws MinecraftItaliaException if the user hasn't this information saved
      */
-    public Date getRegistrationDate() throws McItaliaRuntimeException {
+    public Date getRegistrationDate() throws MinecraftItaliaException {
         Element e = getInfoProperty("Iscritto dal");
-        if(e == null) throw new McItaliaRuntimeException(McItaliaRuntimeException.NO_INFO);
+        if(e == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(e.child(0).attr("data-timestamp") + "000"));
         return calendar.getTime();

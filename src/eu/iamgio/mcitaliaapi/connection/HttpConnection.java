@@ -1,6 +1,6 @@
 package eu.iamgio.mcitaliaapi.connection;
 
-import eu.iamgio.mcitaliaapi.exception.McItaliaRuntimeException;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -35,26 +35,26 @@ public class HttpConnection {
     /**
      * GET request
      * @return Parsed {@link Document}
-     * @throws McItaliaRuntimeException if an error occurred during the request
+     * @throws MinecraftItaliaException if an error occurred during the request
      */
-    public Document get() throws McItaliaRuntimeException {
+    public Document get() throws MinecraftItaliaException {
         try {
             return this.connection.get();
         } catch(IOException e) {
-            throw new McItaliaRuntimeException(e.getMessage());
+            throw new MinecraftItaliaException(e.getMessage());
         }
     }
 
     /**
      * POST request
      * @return Parsed {@link Document}
-     * @throws McItaliaRuntimeException if an error occurred during the request
+     * @throws MinecraftItaliaException if an error occurred during the request
      */
-    public Document post() throws McItaliaRuntimeException {
+    public Document post() throws MinecraftItaliaException {
         try {
             return this.connection.post();
         } catch(IOException e) {
-            throw new McItaliaRuntimeException(e.getMessage());
+            throw new MinecraftItaliaException(e.getMessage());
         }
     }
 
