@@ -188,4 +188,16 @@ public class User {
         }
         return time;
     }
+
+    /**
+     * @return User's gender
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
+    public Gender getGender() throws MinecraftItaliaException {
+        Element element = getInfoProperty("Sesso");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        return element.text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
+    }
+
+    public enum Gender { MALE, FEMALE }
 }
