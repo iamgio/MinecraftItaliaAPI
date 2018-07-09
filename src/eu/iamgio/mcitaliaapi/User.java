@@ -50,6 +50,9 @@ public class User {
         return document.getElementsByClass("username").first().text();
     }
 
+    /**
+     * @return URL of user's avatar
+     */
     public String getAvatarUrl() {
         return document.getElementsByClass("avatar").first().getElementsByTag("img").first().attr("src");
     }
