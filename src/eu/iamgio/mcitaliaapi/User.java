@@ -4,6 +4,7 @@ import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.*;
 
@@ -31,7 +32,7 @@ public class User {
                 return element.child(1);
             }
         }
-        throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        throw new MinecraftItaliaException("The user does not have this information.");
     }
 
     /**
@@ -47,6 +48,14 @@ public class User {
      */
     public String getName() {
         return document.getElementsByClass("username").first().text();
+    }
+
+    /**
+     * @return <tt>true</tt> if the user is online
+     */
+    public boolean isOnline() {
+        return document.getElementsByClass("profile-info").first().getElementsByClass("color-online").first()
+                .text().equals("Online");
     }
 
     /**
@@ -96,6 +105,44 @@ public class User {
      */
     public int getFollowersCount() {
         return Integer.parseInt(document.getElementsByClass("col-sm-8").first().getElementsByTag("b").get(1).ownText());
+    }
+
+    /**
+     * @return <tt>true</tt> if the user has linked a Minecraft account
+     */
+    public boolean hasMinecraftAccount() {
+        return document.getElementsByClass("profile-info").first().getElementsByClass("username").size() > 0;
+    }
+
+    /**
+     * @return User's Minecraft username
+     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     */
+    public String getMinecraftUsername() throws MinecraftItaliaException {
+        Elements names = document.getElementsByClass("profile-info").first().getElementsByClass("username");
+        if(names.size() == 0) throw new MinecraftItaliaException("The user does not have a linked Minecraft account.");
+        return names.first().text();
+    }
+
+    /**
+     * @return User's Minecraft skin (head)
+     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     */
+    public String getMinecraftSkinUrl() throws MinecraftItaliaException {
+        if(!hasMinecraftAccount()) throw new MinecraftItaliaException("The user does not have a linked Minecraft account.");
+        return document.getElementsByClass("profile-info").first().getElementsByTag("img").first().attr("src");
+    }
+
+    /**
+     * @param size Size of the image
+     * @return User's Minecraft skin (head)
+     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     */
+    public String getMinecraftSkinUrl(int size) throws MinecraftItaliaException {
+        String url = getMinecraftSkinUrl();
+        int substringStart = "https://minepic.org/avatar/".length();
+        int substringEnd = substringStart + 2;
+        return url.substring(0, substringStart) + size + url.substring(substringEnd, url.length());
     }
 
     /**
