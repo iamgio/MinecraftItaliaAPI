@@ -199,5 +199,15 @@ public class User {
         return element.text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
     }
 
+    /**
+     * @return User's provenance
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
+    public String getProvenance() throws MinecraftItaliaException {
+        Element element = getInfoProperty("Provenienza");
+        if(element == null) throw new MinecraftItaliaException(MinecraftItaliaException.NO_INFO);
+        return element.text();
+    }
+
     public enum Gender { MALE, FEMALE }
 }
