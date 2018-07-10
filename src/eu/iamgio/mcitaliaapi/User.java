@@ -15,6 +15,7 @@ import java.util.*;
  * Represents an user of Minecraft Italia
  * @author Gio
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class User {
 
     private Document document;
@@ -25,6 +26,13 @@ public class User {
 
     private User(String name) {
         this.name = name;
+        this.update();
+    }
+
+    /**
+     * Updates connection
+     */
+    public void update() {
         this.document = new HttpConnection("https://www.minecraft-italia.it/user/" + name).connect().get();
     }
 
