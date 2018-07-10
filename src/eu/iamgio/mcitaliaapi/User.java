@@ -2,6 +2,9 @@ package eu.iamgio.mcitaliaapi;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
+import eu.iamgio.mcitaliaapi.json.JSONParser;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,7 +19,12 @@ public class User {
 
     private Document document;
 
+    private String name;
+
+    private Integer uid;
+
     private User(String name) {
+        this.name = name;
         this.document = new HttpConnection("https://www.minecraft-italia.it/user/" + name).connect().get();
     }
 
@@ -50,12 +58,26 @@ public class User {
         return document.getElementsByClass("username").first().text();
     }
 
+    public int getUid() {
+        if(uid == null) {
+            uid = Integer.parseInt(document.getElementById("users").attr("data-uid"));
+        }
+        return uid;
+    }
+
     /**
      * @return <tt>true</tt> if the user is online
      */
     public boolean isOnline() {
         return document.getElementsByClass("profile-info").first().getElementsByClass("color-online").first()
                 .text().equals("Online");
+    }
+
+    /**
+     * @return <tt>true</tt> if the user's profile is private
+     */
+    public boolean isPrivate() {
+        return document.getElementsByClass("forms-content").size() > 0;
     }
 
     /**
@@ -276,6 +298,22 @@ public class User {
             );
         }
         return socials;
+    }
+
+    /**
+     * @return User's friends
+     * @throws MinecraftItaliaException if an error occurred (common: private profile)
+     */
+    public List<UnparsedUser> getFriends() throws MinecraftItaliaException {
+        List<UnparsedUser> friends = new ArrayList<>();
+        String url = "https://www.minecraft-italia.it/board/get_user_friends?filter[uid]=" + getUid() + "&start=0";
+        JSONObject object = new JSONParser(url).parse();
+        if(object.get("status").toString().equals("error")) throw new MinecraftItaliaException(object.get("descr").toString());
+        JSONArray array = (JSONArray) object.get("data");
+        for(Object obj : array) {
+            friends.add(new UnparsedUser(((JSONObject) obj).get("username").toString()));
+        }
+        return friends;
     }
 
     public enum Gender { MALE, FEMALE }
