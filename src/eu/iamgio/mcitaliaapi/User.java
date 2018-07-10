@@ -58,6 +58,9 @@ public class User {
         return document.getElementsByClass("username").first().text();
     }
 
+    /**
+     * @return User's unique ID
+     */
     public int getUid() {
         if(uid == null) {
             uid = Integer.parseInt(document.getElementById("users").attr("data-uid"));
