@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * Connection to any common website
@@ -39,7 +40,7 @@ public class HttpConnection {
 
             return buffer.toString();
         } finally {
-            if (reader != null)
+            if(reader != null)
                 reader.close();
         }
     }
@@ -49,7 +50,11 @@ public class HttpConnection {
      * @return This for concatenating
      */
     public HttpConnection connect() {
-        this.connection = Jsoup.connect(url);
+        this.connection = Jsoup.connect(url)
+                .userAgent("Mozilla")
+                .ignoreContentType(true)
+                .ignoreHttpErrors(true)
+                .followRedirects(true);
         return this;
     }
 
@@ -75,8 +80,16 @@ public class HttpConnection {
         try {
             return this.connection.post();
         } catch(IOException e) {
+            e.printStackTrace();
             throw new MinecraftItaliaException(e.getMessage());
         }
+    }
+
+    /**
+     * @return Connection response
+     */
+    public Connection.Response getResponse() {
+        return this.connection.response();
     }
 
     /**
@@ -87,6 +100,16 @@ public class HttpConnection {
      */
     public HttpConnection data(String k, String v) {
         this.connection = connection.data(k, v);
+        return this;
+    }
+
+    /**
+     * Applies cookies
+     * @param cookies Cookies
+     * @return This for concatenating
+     */
+    public HttpConnection cookies(Map<String, String> cookies) {
+        this.connection = connection.cookies(cookies);
         return this;
     }
 }

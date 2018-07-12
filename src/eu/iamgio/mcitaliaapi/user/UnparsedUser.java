@@ -1,4 +1,4 @@
-package eu.iamgio.mcitaliaapi;
+package eu.iamgio.mcitaliaapi.user;
 
 /**
  * General object that represents an user of Minecraft Italia but doesn't connect to its page
@@ -19,7 +19,10 @@ public class UnparsedUser {
         return name;
     }
 
+    /**
+     * @return Parsed user
+     */
     public User toParsedUser() {
-        return User.getUser(name);
+        return User.byName(name);
     }
 }

@@ -1,8 +1,12 @@
-package eu.iamgio.mcitaliaapi;
+package eu.iamgio.mcitaliaapi.user;
 
+import eu.iamgio.mcitaliaapi.board.BoardPost;
+import eu.iamgio.mcitaliaapi.board.BoardPostComment;
+import eu.iamgio.mcitaliaapi.board.BoardPostReply;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.json.JSONParser;
+import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
@@ -15,25 +19,34 @@ import java.util.*;
  * Represents an user of Minecraft Italia
  * @author Gio
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 public class User {
 
+    private String url;
     private Document document;
+    protected Map<String, String> cookies = new HashMap<>();
 
     private String name;
+    private Long uid;
 
-    private Integer uid;
-
-    private User(String name) {
+    User(String name) {
         this.name = name;
+        this.url = "https://www.minecraft-italia.it/user/" + name;
         this.update();
+        this.uid = getUid();
+    }
+
+    User(long uid) {
+        this.uid = uid;
+        this.url = "https://www.minecraft-italia.it/user/id/" + uid;
+        this.update();
+        this.name = getName();
     }
 
     /**
      * Updates connection
      */
     public void update() {
-        this.document = new HttpConnection("https://www.minecraft-italia.it/user/" + name).connect().get();
+        this.document = new HttpConnection(url).connect().get();
     }
 
     private Element getStatisticsRowProperty(int index) {
@@ -55,8 +68,39 @@ public class User {
      * @param name User's name
      * @return Minecraft Italia user by name
      */
-    public static User getUser(String name) {
+    public static User byName(String name) {
         return new User(name);
+    }
+
+    /**
+     * @param uid User's UID
+     * @return Minecraft Italia user by UID
+     */
+    public static User byUid(long uid) {
+        return new User(uid);
+    }
+
+    /**
+     * Logins
+     * @param password Password
+     * @return Logged user
+     * @throws MinecraftItaliaException if credentials are invalid
+     */
+    public LoggedUser login(String password) throws MinecraftItaliaException {
+        HttpConnection connection = new HttpConnection("https://www.minecraft-italia.it/forum/member.php").connect();
+        Document document = connection
+                .data("action", "do_login")
+                .data("my_post_key", "1aa84a42c786d915cc39bb06398ba184")
+                .data("password", password)
+                .data("remember", "yes")
+                .data("submit", "Accedi")
+                .data("url", "www.minecraft-italia.it/user/" + name + "/")
+                .data("username", name)
+                .post();
+        if(document.getElementById("dropdown-profile-menu") == null) {
+            throw new MinecraftItaliaException("Invalid credentials.");
+        }
+        return new LoggedUser(this.name, connection.getResponse().cookies(), document);
     }
 
     /**
@@ -69,9 +113,9 @@ public class User {
     /**
      * @return User's unique ID
      */
-    public int getUid() {
+    public long getUid() {
         if(uid == null) {
-            uid = Integer.parseInt(document.getElementById("users").attr("data-uid"));
+            uid = Long.parseLong(document.getElementById("users").attr("data-uid"));
         }
         return uid;
     }
@@ -178,6 +222,10 @@ public class User {
         return url.substring(0, substringStart) + size + url.substring(substringEnd, url.length());
     }
 
+    /**
+     * @return User's biography
+     * @throws MinecraftItaliaException if the user hasn't this information saved
+     */
     public String getBio() throws MinecraftItaliaException {
         Elements bio = document.getElementsByClass("profile-bio");
         if(bio.size() == 0) throw new MinecraftItaliaException("The user does not have this information.");
@@ -203,9 +251,7 @@ public class User {
      */
     public Date getRegistrationDate() throws MinecraftItaliaException {
         Element element = getInfoProperty("Iscritto dal");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
-        return calendar.getTime();
+        return Utils.getDateByTimestamp(element.child(0).attr("data-timestamp"));
     }
 
     /**
@@ -214,9 +260,7 @@ public class User {
      */
     public Date getLastVisitDate() throws MinecraftItaliaException {
         Element element = getInfoProperty("Ultima visita");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(Long.parseLong(element.child(0).attr("data-timestamp") + "000"));
-        return calendar.getTime();
+        return Utils.getDateByTimestamp(element.child(0).attr("data-timestamp"));
     }
 
     /**
@@ -325,6 +369,56 @@ public class User {
             friends.add(new UnparsedUser(((JSONObject) obj).get("username").toString()));
         }
         return friends;
+    }
+
+    public List<BoardPost> getBoardPosts() {
+        List<BoardPost> posts = new ArrayList<>();
+        String url = "https://www.minecraft-italia.it/board/get_posts?filter[type]=private&filter[uid]=" + getUid() + "&start=0";
+        JSONObject object = new JSONParser(url).parse();
+        if(object.get("status").toString().equals("error")) throw new MinecraftItaliaException(object.get("descr").toString());
+        JSONArray array = (JSONArray) object.get("data");
+        for(Object obj : array) {
+            JSONObject json = (JSONObject) obj;
+            JSONObject interactionsJson = (JSONObject) json.get("interactions");
+            long id = (long) json.get("id");
+            long sharedId = (long) json.get("share");
+            UnparsedUser user = new UnparsedUser(json.get("username").toString());
+            JSONArray targetJson = (JSONArray) json.get("user_to");
+            UnparsedUser target = targetJson.isEmpty() ? null : new UnparsedUser(targetJson.get(0).toString());
+            String content = json.get("content").toString().replace("<br />", "");
+            Object mediaObj = json.get("media");
+            String mediaUrl = null;
+            if(mediaObj instanceof JSONObject) mediaUrl = ((JSONObject) mediaObj).get("image").toString();
+            Date date = Utils.getDateByTimestamp(json.get("timestamp").toString());
+            long[] likeGivers = Utils.longJsonArrayToLongArray((JSONArray) interactionsJson.get("like"));
+            long[] sharers = Utils.longJsonArrayToLongArray((JSONArray) interactionsJson.get("share"));
+            List<BoardPostComment> comments = new ArrayList<>();
+            JSONArray commentsJson = (JSONArray) json.get("comments");
+            for(Object commentObj : commentsJson) {
+                JSONObject comment = (JSONObject) commentObj;
+                JSONObject commentInteractionsJson = (JSONObject) json.get("interactions");
+                int commentId = Integer.parseInt(comment.get("id").toString());
+                UnparsedUser commentUser = new UnparsedUser(comment.get("username").toString());
+                String commentContent = comment.get("content").toString();
+                Date commentDate = Utils.getDateByTimestamp(comment.get("timestamp").toString());
+                long[] commentLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) commentInteractionsJson.get("like"));
+                List<BoardPostReply> replies = new ArrayList<>();
+                JSONArray repliesJson = (JSONArray) comment.get("replies");
+                for(Object replyObj : repliesJson) {
+                    JSONObject replyJson = (JSONObject) replyObj;
+                    JSONObject replyInteractionsJson = (JSONObject) replyJson.get("interactions");
+                    int replyId = Integer.parseInt(replyJson.get("id").toString());
+                    UnparsedUser replyUser = new UnparsedUser(replyJson.get("username").toString());
+                    String replyContent = replyJson.get("content").toString();
+                    Date replyDate = Utils.getDateByTimestamp(replyJson.get("timestamp").toString());
+                    long[] replyLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) replyInteractionsJson.get("like"));
+                    replies.add(new BoardPostReply(replyId, replyUser, replyContent, replyDate, replyLikeGivers));
+                }
+                comments.add(new BoardPostComment(commentId, commentUser, commentContent, commentDate, commentLikeGivers, replies));
+            }
+            posts.add(new BoardPost(id, sharedId == 0 ? null : sharedId, user, target, content, mediaUrl, date, likeGivers, sharers, comments));
+        }
+        return posts;
     }
 
     public enum Gender { MALE, FEMALE }
