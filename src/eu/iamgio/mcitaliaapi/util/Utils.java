@@ -22,7 +22,13 @@ public class Utils {
     public static long[] longJsonArrayToLongArray(JSONArray array) {
         long[] arr = new long[array.size()];
         for(int i = 0; i < array.size(); i++) {
-            arr[i] = (long) array.get(i);
+            long value;
+            Object obj = array.get(i);
+            if(obj instanceof Long) {
+                value = (long) obj;
+            } else {
+                value = Long.parseLong(obj.toString());
+            }
         }
         return arr;
     }
