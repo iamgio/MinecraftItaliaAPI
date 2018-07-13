@@ -8,8 +8,13 @@ public class UnparsedUser {
 
     private String name;
 
-    UnparsedUser(String name) {
+    public UnparsedUser(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     /**
