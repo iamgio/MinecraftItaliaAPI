@@ -3,6 +3,7 @@ package eu.iamgio.mcitaliaapi.user;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.board.BoardPostComment;
 import eu.iamgio.mcitaliaapi.board.BoardPostReply;
+import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.json.JSONParser;
@@ -23,7 +24,6 @@ public class User {
 
     private String url;
     private Document document;
-    protected Map<String, String> cookies = new HashMap<>();
 
     private String name;
     private Long uid;
@@ -138,19 +138,30 @@ public class User {
      */
     public LoggedUser login(String password) throws MinecraftItaliaException {
         HttpConnection connection = new HttpConnection("https://www.minecraft-italia.it/forum/member.php").connect();
+        Document documentDummy = connection.data("action", "do_login").post();
+        String postKey = documentDummy.select("input[name=my_post_key]").attr("value");
         Document document = connection
                 .data("action", "do_login")
-                .data("my_post_key", "1aa84a42c786d915cc39bb06398ba184")
+                .data("my_post_key", postKey)
                 .data("password", password)
                 .data("remember", "yes")
                 .data("submit", "Accedi")
-                .data("url", "www.minecraft-italia.it/user/" + name + "/")
+                .data("url", "//www.minecraft-italia.it/forum")
                 .data("username", name)
                 .post();
+        System.out.println(postKey);
         if(document.getElementById("dropdown-profile-menu") == null) {
             throw new MinecraftItaliaException("Invalid credentials.");
         }
-        return new LoggedUser(this.name, connection.getResponse().cookies(), document);
+        Cookies.cookies = connection.getResponse().cookies();
+        return new LoggedUser(this.name, document);
+    }
+
+    /**
+     * @return User's post key
+     */
+    public String getPostKey() {
+        return document.select("input[name=my_post_key]").attr("value");
     }
 
     /**

@@ -51,7 +51,7 @@ public class HttpConnection {
      */
     public HttpConnection connect() {
         this.connection = Jsoup.connect(url)
-                .userAgent("Mozilla")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0")
                 .ignoreContentType(true)
                 .ignoreHttpErrors(true)
                 .followRedirects(true);
@@ -65,7 +65,7 @@ public class HttpConnection {
      */
     public Document get() throws MinecraftItaliaException {
         try {
-            return this.connection.get();
+            return this.connection.cookies(Cookies.cookies).get();
         } catch(IOException e) {
             throw new MinecraftItaliaException(e.getMessage());
         }
@@ -78,9 +78,8 @@ public class HttpConnection {
      */
     public Document post() throws MinecraftItaliaException {
         try {
-            return this.connection.post();
+            return this.connection.cookies(Cookies.cookies).post();
         } catch(IOException e) {
-            e.printStackTrace();
             throw new MinecraftItaliaException(e.getMessage());
         }
     }
