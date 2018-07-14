@@ -51,7 +51,8 @@ public class HttpConnection {
      */
     public HttpConnection connect() {
         this.connection = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0")
+                .userAgent("Mozilla")
+                .referrer("http://www.google.com")
                 .ignoreContentType(true)
                 .ignoreHttpErrors(true)
                 .followRedirects(true);

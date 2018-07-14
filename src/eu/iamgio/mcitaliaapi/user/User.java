@@ -1,8 +1,6 @@
 package eu.iamgio.mcitaliaapi.user;
 
 import eu.iamgio.mcitaliaapi.board.BoardPost;
-import eu.iamgio.mcitaliaapi.board.BoardPostComment;
-import eu.iamgio.mcitaliaapi.board.BoardPostReply;
 import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
@@ -14,7 +12,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents an user of Minecraft Italia
@@ -70,46 +71,7 @@ public class User {
         if(object.get("status").toString().equals("error")) throw new MinecraftItaliaException(object.get("descr").toString());
         JSONArray array = (JSONArray) object.get("data");
         for(Object obj : array) {
-            JSONObject json = (JSONObject) obj;
-            JSONObject interactionsJson = (JSONObject) json.get("interactions");
-            long id = (long) json.get("id");
-            long sharedId = (long) json.get("share");
-            UnparsedUser user = new UnparsedUser(json.get("username").toString());
-            Object targetJson = json.get("user_to");
-            UnparsedUser target = targetJson instanceof JSONArray || ((JSONObject) targetJson).isEmpty() ? 
-                    null : new UnparsedUser(((JSONObject) targetJson).get("username").toString());
-            String content = json.get("content").toString().replace("<br />", "");
-            Object mediaObj = json.get("media");
-            String mediaUrl = null;
-            if(mediaObj instanceof JSONObject) mediaUrl = ((JSONObject) mediaObj).get("image").toString();
-            Date date = Utils.getDateByTimestamp(json.get("timestamp").toString());
-            long[] likeGivers = Utils.longJsonArrayToLongArray((JSONArray) interactionsJson.get("like"));
-            long[] sharers = Utils.longJsonArrayToLongArray((JSONArray) interactionsJson.get("share"));
-            List<BoardPostComment> comments = new ArrayList<>();
-            JSONArray commentsJson = (JSONArray) json.get("comments");
-            for(Object commentObj : commentsJson) {
-                JSONObject comment = (JSONObject) commentObj;
-                JSONObject commentInteractionsJson = (JSONObject) json.get("interactions");
-                int commentId = Integer.parseInt(comment.get("id").toString());
-                UnparsedUser commentUser = new UnparsedUser(comment.get("username").toString());
-                String commentContent = comment.get("content").toString();
-                Date commentDate = Utils.getDateByTimestamp(comment.get("timestamp").toString());
-                long[] commentLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) commentInteractionsJson.get("like"));
-                List<BoardPostReply> replies = new ArrayList<>();
-                JSONArray repliesJson = (JSONArray) comment.get("replies");
-                for(Object replyObj : repliesJson) {
-                    JSONObject replyJson = (JSONObject) replyObj;
-                    JSONObject replyInteractionsJson = (JSONObject) replyJson.get("interactions");
-                    int replyId = Integer.parseInt(replyJson.get("id").toString());
-                    UnparsedUser replyUser = new UnparsedUser(replyJson.get("username").toString());
-                    String replyContent = replyJson.get("content").toString();
-                    Date replyDate = Utils.getDateByTimestamp(replyJson.get("timestamp").toString());
-                    long[] replyLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) replyInteractionsJson.get("like"));
-                    replies.add(new BoardPostReply(replyId, replyUser, replyContent, replyDate, replyLikeGivers));
-                }
-                comments.add(new BoardPostComment(commentId, commentUser, commentContent, commentDate, commentLikeGivers, replies));
-            }
-            posts.add(new BoardPost(id, sharedId == 0 ? null : sharedId, user, target, content, mediaUrl, date, likeGivers, sharers, comments));
+            posts.add(BoardPost.fromJsonObject((JSONObject) obj));
         }
         return posts;
     }
@@ -149,7 +111,6 @@ public class User {
                 .data("url", "//www.minecraft-italia.it/forum")
                 .data("username", name)
                 .post();
-        System.out.println(postKey);
         if(document.getElementById("dropdown-profile-menu") == null) {
             throw new MinecraftItaliaException("Invalid credentials.");
         }

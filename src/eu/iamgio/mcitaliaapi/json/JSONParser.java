@@ -3,21 +3,30 @@ package eu.iamgio.mcitaliaapi.json;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.jsoup.nodes.Document;
 
 /**
  * @author Gio
  */
 public class JSONParser {
 
-    private HttpConnection connection;
+    private String json;
 
     public JSONParser(String url) {
-        this.connection = new HttpConnection(url);
+        try {
+            this.json = new HttpConnection(url).read();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONParser(Document document) {
+        this.json = document.body().html();
     }
 
     public JSONObject parse() {
         try {
-            return (JSONObject) JSONValue.parseWithException(connection.read());
+            return (JSONObject) JSONValue.parseWithException(json);
         } catch(Exception e) {
             return null;
         }
