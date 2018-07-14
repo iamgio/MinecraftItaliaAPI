@@ -1,4 +1,4 @@
-package eu.iamgio.mcitaliaapi.json;
+package eu.iamgio.mcitaliaapi.connection.json;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import org.json.simple.JSONObject;
@@ -28,6 +28,7 @@ public class JSONParser {
         try {
             return (JSONObject) JSONValue.parseWithException(json);
         } catch(Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

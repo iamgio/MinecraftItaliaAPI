@@ -4,7 +4,7 @@ import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
-import eu.iamgio.mcitaliaapi.json.JSONParser;
+import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

@@ -1,6 +1,9 @@
 package eu.iamgio.mcitaliaapi.board;
 
 import eu.iamgio.mcitaliaapi.user.UnparsedUser;
+import eu.iamgio.mcitaliaapi.util.Utils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.Date;
 
@@ -16,12 +19,22 @@ public class BoardPostReply {
     private Date date;
     private long[] likeGivers;
 
-    public BoardPostReply(int id, UnparsedUser user, String content, Date date, long[] likeGivers) {
+    BoardPostReply(int id, UnparsedUser user, String content, Date date, long[] likeGivers) {
         this.id = id;
         this.user = user;
         this.content = content;
         this.date = date;
         this.likeGivers = likeGivers;
+    }
+
+    public static BoardPostReply fromJsonObject(JSONObject json) {
+        JSONObject replyInteractionsJson = (JSONObject) json.get("interactions");
+        int replyId = Integer.parseInt(json.get("id").toString());
+        UnparsedUser replyUser = new UnparsedUser(json.get("username").toString());
+        String replyContent = json.get("content").toString();
+        Date replyDate = Utils.getDateByTimestamp(json.get("timestamp").toString());
+        long[] replyLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) replyInteractionsJson.get("like"));
+        return new BoardPostReply(replyId, replyUser, replyContent, replyDate, replyLikeGivers);
     }
 
     /**

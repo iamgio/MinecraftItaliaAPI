@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Map;
+import java.net.URLConnection;
 
 /**
  * Connection to any common website
@@ -28,21 +28,22 @@ public class HttpConnection {
     }
 
     public String read() throws Exception {
-        BufferedReader reader = null;
-        try {
-            URL url = new URL(this.url);
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuilder buffer = new StringBuilder();
-            int read;
-            char[] chars = new char[1024];
-            while ((read = reader.read(chars)) != -1)
-                buffer.append(chars, 0, read);
-
-            return buffer.toString();
-        } finally {
-            if(reader != null)
-                reader.close();
+        URL website = new URL(url);
+        URLConnection connection = website.openConnection();
+        StringBuilder cookieString = new StringBuilder();
+        for(String cookie : Cookies.cookies.keySet()) {
+            cookieString.append(cookie).append("=").append(Cookies.cookies.get(cookie)).append("; ");
         }
+        connection.setRequestProperty("Cookie", cookieString.toString());
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(
+                        connection.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String inputLine;
+        while((inputLine = in.readLine()) != null)
+            response.append(inputLine);
+        in.close();
+        return response.toString();
     }
 
     /**
@@ -55,7 +56,8 @@ public class HttpConnection {
                 .referrer("http://www.google.com")
                 .ignoreContentType(true)
                 .ignoreHttpErrors(true)
-                .followRedirects(true);
+                .followRedirects(true)
+                .cookies(Cookies.cookies);
         return this;
     }
 
@@ -66,7 +68,7 @@ public class HttpConnection {
      */
     public Document get() throws MinecraftItaliaException {
         try {
-            return this.connection.cookies(Cookies.cookies).get();
+            return this.connection.get();
         } catch(IOException e) {
             throw new MinecraftItaliaException(e.getMessage());
         }
@@ -79,7 +81,7 @@ public class HttpConnection {
      */
     public Document post() throws MinecraftItaliaException {
         try {
-            return this.connection.cookies(Cookies.cookies).post();
+            return this.connection.post();
         } catch(IOException e) {
             throw new MinecraftItaliaException(e.getMessage());
         }
@@ -100,16 +102,6 @@ public class HttpConnection {
      */
     public HttpConnection data(String k, String v) {
         this.connection = connection.data(k, v);
-        return this;
-    }
-
-    /**
-     * Applies cookies
-     * @param cookies Cookies
-     * @return This for concatenating
-     */
-    public HttpConnection cookies(Map<String, String> cookies) {
-        this.connection = connection.cookies(cookies);
         return this;
     }
 }

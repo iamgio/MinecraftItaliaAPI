@@ -54,26 +54,7 @@ public class BoardPost {
         List<BoardPostComment> comments = new ArrayList<>();
         JSONArray commentsJson = (JSONArray) json.get("comments");
         for(Object commentObj : commentsJson) {
-            JSONObject comment = (JSONObject) commentObj;
-            JSONObject commentInteractionsJson = (JSONObject) json.get("interactions");
-            int commentId = Integer.parseInt(comment.get("id").toString());
-            UnparsedUser commentUser = new UnparsedUser(comment.get("username").toString());
-            String commentContent = comment.get("content").toString();
-            Date commentDate = Utils.getDateByTimestamp(comment.get("timestamp").toString());
-            long[] commentLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) commentInteractionsJson.get("like"));
-            List<BoardPostReply> replies = new ArrayList<>();
-            JSONArray repliesJson = (JSONArray) comment.get("replies");
-            for(Object replyObj : repliesJson) {
-                JSONObject replyJson = (JSONObject) replyObj;
-                JSONObject replyInteractionsJson = (JSONObject) replyJson.get("interactions");
-                int replyId = Integer.parseInt(replyJson.get("id").toString());
-                UnparsedUser replyUser = new UnparsedUser(replyJson.get("username").toString());
-                String replyContent = replyJson.get("content").toString();
-                Date replyDate = Utils.getDateByTimestamp(replyJson.get("timestamp").toString());
-                long[] replyLikeGivers = Utils.longJsonArrayToLongArray((JSONArray) replyInteractionsJson.get("like"));
-                replies.add(new BoardPostReply(replyId, replyUser, replyContent, replyDate, replyLikeGivers));
-            }
-            comments.add(new BoardPostComment(commentId, commentUser, commentContent, commentDate, commentLikeGivers, replies));
+            comments.add(BoardPostComment.fromJsonObject((JSONObject) commentObj));
         }
         return new BoardPost(id, sharedId == 0 ? null : sharedId, user, target, content, mediaUrl, date, likeGivers, sharers, comments);
     }
