@@ -21,12 +21,21 @@ public class LoggedUser extends User {
 
     /**
      * Sends a message to tagboard
-     * @param text
+     * @param text Text of the message
      */
     public void sendTagboardMessage(String text) {
         new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php?action=dvz_sb_shout&text=" + text + "&key=" + getPostKey())
                 .connect()
                 .post();
+    }
+
+    /**
+     * Sends a private message to any user in tagboard
+     * @param text Text of the message
+     * @param uid Target player's UID
+     */
+    public void sendTagboardPrivateMessage(String text, long uid) {
+        sendTagboardMessage("/pvt " + uid + " " + text);
     }
 
     /**
