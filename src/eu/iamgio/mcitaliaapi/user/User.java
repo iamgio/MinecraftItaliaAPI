@@ -106,7 +106,7 @@ public class User {
             throw new MinecraftItaliaException("Invalid credentials.");
         }
         Cookies.cookies = connection.getResponse().cookies();
-        return new LoggedUser(this.name, document);
+        return new LoggedUser(this.name);
     }
 
     /**

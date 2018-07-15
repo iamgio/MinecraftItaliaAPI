@@ -6,6 +6,7 @@ import eu.iamgio.mcitaliaapi.board.BoardPostComment;
 import eu.iamgio.mcitaliaapi.board.BoardPostReply;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
 
@@ -17,11 +18,52 @@ import java.util.List;
  */
 public class LoggedUser extends User {
 
-    private Document document;
-
-    LoggedUser(String name, Document document) {
+    LoggedUser(String name) {
         super(name);
-        this.document = document;
+    }
+
+    /**
+     * Follows an user
+     * @param uid Target user's UID
+     */
+    public void followUser(long uid) {
+        new HttpConnection("https://www.minecraft-italia.it/board/set_buddylist").connect()
+                .data("status", "0")
+                .data("uid", String.valueOf(uid))
+                .post();
+    }
+
+    /**
+     * Unfollows an user
+     * @param uid Target user's UID
+     */
+    public void unfollowUser(long uid) {
+        new HttpConnection("https://www.minecraft-italia.it/board/set_buddylist").connect()
+                .data("status", "1")
+                .data("uid", String.valueOf(uid))
+                .post();
+    }
+
+    /**
+     * Blocks an user
+     * @param uid Target user's UID
+     */
+    public void blockUser(long uid) {
+        new HttpConnection("https://www.minecraft-italia.it/board/set_ignorelist").connect()
+                .data("status", "0")
+                .data("uid", String.valueOf(uid))
+                .post();
+    }
+
+    /**
+     * Unblocks an user
+     * @param uid Target user's UID
+     */
+    public void unblockUser(long uid) {
+        new HttpConnection("https://www.minecraft-italia.it/board/set_ignorelist").connect()
+                .data("status", "1")
+                .data("uid", String.valueOf(uid))
+                .post();
     }
 
     /**
@@ -156,8 +198,24 @@ public class LoggedUser extends User {
      * @param reply Reply to remove
      */
     public void removeBoardReply(BoardPostReply reply) {
-        new HttpConnection("https://www.minecraft-italia.it/board/comment_remove")
+        new HttpConnection("https://www.minecraft-italia.it/board/comment_remove").connect()
                 .data("cid", String.valueOf(reply.getId()))
                 .post();
+    }
+
+    /**
+     * @return 3 suggested friends
+     */
+    public UnparsedUser[] getSuggestedFriends() {
+        UnparsedUser[] users = new UnparsedUser[3];
+        Document document = new HttpConnection("https://www.minecraft-italia.it/board/suggested_friends").connect().post();
+        JSONObject object = new JSONParser(document).parse();
+        JSONObject data = (JSONObject) object.get("data");
+        String json = (String) data.get("friends");
+        JSONArray parsed = new JSONParser(json, true).parseArray();
+        for(int i = 0; i < parsed.size(); i++) {
+            users[i] = new UnparsedUser(((JSONObject) parsed.get(i)).get("username").toString());
+        }
+        return users;
     }
 }

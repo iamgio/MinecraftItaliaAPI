@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi.connection.json;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.jsoup.nodes.Document;
@@ -24,9 +25,22 @@ public class JSONParser {
         this.json = document.body().html();
     }
 
+    public JSONParser(String json, /*Unused parameter*/ boolean isJson) {
+        this.json = json;
+    }
+
     public JSONObject parse() {
         try {
             return (JSONObject) JSONValue.parseWithException(json);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONArray parseArray() {
+        try {
+            return (JSONArray) JSONValue.parseWithException(json);
         } catch(Exception e) {
             e.printStackTrace();
             return null;
