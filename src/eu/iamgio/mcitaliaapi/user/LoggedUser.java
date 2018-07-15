@@ -1,5 +1,6 @@
 package eu.iamgio.mcitaliaapi.user;
 
+import eu.iamgio.mcitaliaapi.board.Board;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.board.BoardPostComment;
 import eu.iamgio.mcitaliaapi.board.BoardPostReply;
@@ -7,6 +8,8 @@ import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
+
+import java.util.List;
 
 /**
  * Represent a logged user
@@ -56,6 +59,21 @@ public class LoggedUser extends User {
         JSONObject data = (JSONObject) object.get("data");
         JSONObject post = (JSONObject) data.get("post");
         return BoardPost.fromJsonObject(post);
+    }
+
+    /**
+     * @return Friends' first 15 board posts
+     */
+    public List<BoardPost> getFriendsBoardPosts() {
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=friends&filter[uid]=0&start=0");
+    }
+
+    /**
+     * @param start Start post
+     * @return Friends' 15 board posts after <tt>start</tt>
+     */
+    public List<BoardPost> getFriendsBoardPosts(BoardPost start) {
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=friends&filter[uid]=0&start=" + start.getId());
     }
 
     /**
@@ -113,18 +131,30 @@ public class LoggedUser extends User {
         return BoardPostReply.fromJsonObject(reply);
     }
 
+    /**
+     * Removes a board post
+     * @param post Post to remove
+     */
     public void removeBoardPost(BoardPost post) {
         new HttpConnection("https://www.minecraft-italia.it/board/post_remove").connect()
                 .data("pid", String.valueOf(post.getId()))
                 .post();
     }
 
+    /**
+     * Removes a board comment
+     * @param comment Comment to remove
+     */
     public void removeBoardComment(BoardPostComment comment) {
         new HttpConnection("https://www.minecraft-italia.it/board/comment_remove").connect()
                 .data("cid", String.valueOf(comment.getId()))
                 .post();
     }
 
+    /**
+     * Removes a board reply
+     * @param reply Reply to remove
+     */
     public void removeBoardReply(BoardPostReply reply) {
         new HttpConnection("https://www.minecraft-italia.it/board/comment_remove")
                 .data("cid", String.valueOf(reply.getId()))

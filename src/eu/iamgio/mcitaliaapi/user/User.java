@@ -1,5 +1,6 @@
 package eu.iamgio.mcitaliaapi.user;
 
+import eu.iamgio.mcitaliaapi.board.Board;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
@@ -65,16 +66,6 @@ public class User {
         throw new MinecraftItaliaException("The user does not have this information.");
     }
 
-    private List<BoardPost> getBoardPosts(String url) {
-        List<BoardPost> posts = new ArrayList<>();
-        JSONObject object = new JSONParser(url).parse();
-        if(object.get("status").toString().equals("error")) throw new MinecraftItaliaException(object.get("descr").toString());
-        JSONArray array = (JSONArray) object.get("data");
-        for(Object obj : array) {
-            posts.add(BoardPost.fromJsonObject((JSONObject) obj));
-        }
-        return posts;
-    }
 
     /**
      * @param name User's name
@@ -394,17 +385,33 @@ public class User {
     }
 
     /**
-     * @return User's published board posts
+     * @return User's first 15 board posts
      */
     public List<BoardPost> getBoardPosts() {
-        return getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private&filter[uid]=" + getUid() + "&start=0");
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private&filter[uid]=" + getUid() + "&start=0");
     }
 
     /**
-     * @return Posts where the user is target
+     * @param start Start post
+     * @return User's 15 board posts after <tt>start</tt>
+     */
+    public List<BoardPost> getBoardPosts(BoardPost start) {
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private&filter[uid]=" + getUid() + "&start=" + start.getId());
+    }
+
+    /**
+     * @return First 15 posts where the user is target
      */
     public List<BoardPost> getTargetedBoardPosts() {
-        return getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private-with-replies&filter[uid]=" + getUid() + "&start=0");
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private-with-replies&filter[uid]=" + getUid() + "&start=0");
+    }
+
+    /**
+     * @param start Start post
+     * @return 15 posts afer <tt>start</tt> where the user is target
+     */
+    public List<BoardPost> getTargetedBoardPosts(BoardPost start) {
+        return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private-with-replies&filter[uid]=" + getUid() + "&start=" + start.getId());
     }
 
     public enum Gender { MALE, FEMALE }
