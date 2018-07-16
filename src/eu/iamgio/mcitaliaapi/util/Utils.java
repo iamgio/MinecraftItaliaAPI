@@ -29,6 +29,7 @@ public class Utils {
             } else {
                 value = Long.parseLong(obj.toString());
             }
+            arr[i] = value;
         }
         return arr;
     }

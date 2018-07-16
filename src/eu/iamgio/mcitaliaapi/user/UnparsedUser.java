@@ -28,6 +28,6 @@ public class UnparsedUser {
      * @return Parsed user
      */
     public User toParsedUser() {
-        return User.byName(name);
+        return User.fromName(name);
     }
 }
