@@ -13,8 +13,9 @@ public class ListedTopic {
     private UnparsedUser author, lastReplyAuthor;
     private int repliesCount, viewsCount;
     private TopicPrefix prefix;
+    private boolean announcement, pinned;
 
-    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix) {
+    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned) {
         this.name = name;
         this.iconUrl = iconUrl;
         this.url = url;
@@ -24,13 +25,14 @@ public class ListedTopic {
         this.repliesCount = repliesCount;
         this.viewsCount = viewsCount;
         this.prefix = prefix;
+        this.announcement = announcement;
+        this.pinned = pinned;
     }
 
     static ListedTopic fromElement(Element element) {
         Element lastReplyElement = element.parent().getElementsByClass("thread-lastpost").first();
-        Element titleElement = element.getElementsByClass("thread-title").first();
-        Element titleLink = titleElement.getElementsByTag("a").first();
-        String name = null;
+        Element titleLink = element.getElementsByTag("a").first();
+        String name = titleLink.text();
         String url = Forum.FORUM_URL + titleLink.attr("href").replace("?action=newpost", "");
         String iconUrl = element.getElementsByClass("thread-avatar").first().getElementsByTag("img").first().attr("src");
         UnparsedUser author = new UnparsedUser(element.getElementsByClass("thread-author").first().text());
@@ -42,80 +44,106 @@ public class ListedTopic {
         Element lastReplyAuthorElement = lastReplyElement.getElementsByClass("load-user-box").first();
         UnparsedUser lastReplyAuthor = lastReplyAuthorElement == null ? author : new UnparsedUser(lastReplyAuthorElement.text());
         TopicPrefix prefix = null;
-        for(Element span : titleElement.getElementsByTag("span")) {
-            if(!span.hasText()) continue;
-            if(span.hasAttr("style")) {
-                String prefixText = span.text();
-                String[] prefixStyleParts = span.attr("style").split(";");
-                String prefixColor = prefixStyleParts[0].substring("color: ".length(), prefixStyleParts[0].length());
-                prefix = new TopicPrefix(prefixText, prefixColor);
-            } else {
-                name = span.text();
+        for(Element span : element.getElementsByClass("thread-title").first().getElementsByClass("span")) {
+            if(!span.hasText() && !span.hasAttr("style")) continue;
+            String prefixText = span.text();
+            String[] prefixStyleParts = span.attr("style").split(";");
+            String prefixColor = prefixStyleParts[0].substring("color: ".length(), prefixStyleParts[0].length());
+            prefix = new TopicPrefix(prefixText, prefixColor);
+        }
+        boolean announcement = false, pinned = false;
+        if(element.parent().className().equals("hidden-xs")) {
+            for(Element div : element.parent().getElementsByTag("div")) {
+                if(!div.hasAttr("class")) {
+                    if(!announcement && !pinned) {
+                        announcement = true;
+                    } else if(announcement) {
+                        announcement = false;
+                        pinned = true;
+                    }
+                }
+                if(div.equals(element)) {
+                    break;
+                }
             }
         }
-        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix);
+        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned);
     }
 
     /**
-     * @return Getter for property {@link #name}
+     * @return Topic name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @return Getter for property {@link #iconUrl}
+     * @return URL of the icon of topic
      */
     public String getIconUrl() {
         return iconUrl;
     }
 
     /**
-     * @return Getter for property {@link #url}
+     * @return URL of topic
      */
     public String getUrl() {
         return url;
     }
 
     /**
-     * @return Getter for property {@link #rawLastReplyDate}
+     * @return Raw date of last reply to this topic
      */
     public String getRawLastReplyDate() {
         return rawLastReplyDate;
     }
 
     /**
-     * @return Getter for property {@link #author}
+     * @return Author of topic
      */
     public UnparsedUser getAuthor() {
         return author;
     }
 
     /**
-     * @return Getter for property {@link #lastReplyAuthor}
+     * @return Author of last reply of this topic
      */
     public UnparsedUser getLastReplyAuthor() {
         return lastReplyAuthor;
     }
 
     /**
-     * @return Getter for property {@link #repliesCount}
+     * @return Amount of replies
      */
     public int getRepliesCount() {
         return repliesCount;
     }
 
     /**
-     * @return Getter for property {@link #viewsCount}
+     * @return Amount of views
      */
     public int getViewsCount() {
         return viewsCount;
     }
 
     /**
-     * @return Getter for property {@link #prefix}
+     * @return Prefix of topic
      */
     public TopicPrefix getPrefix() {
         return prefix;
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic is an announcement by the Minecraft Italia staff
+     */
+    public boolean isAnnouncement() {
+        return announcement;
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic was pinned in its section
+     */
+    public boolean isPinned() {
+        return pinned;
     }
 }

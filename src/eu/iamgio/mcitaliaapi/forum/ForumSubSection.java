@@ -50,8 +50,14 @@ public class ForumSubSection {
         return Integer.parseInt(document.getElementsByClass("pagination_last").first().ownText());
     }
 
-    public List<ListedTopic> getTopics() {
-        if(document == null) update();
+    public List<ListedTopic> getTopics(int page) {
+        Document document;
+        if(page == 0) {
+            if(this.document == null) update();
+            document = this.document;
+        } else {
+            document = new HttpConnection(url + "?page=" + (page + 1)).connect().get();
+        }
         List<ListedTopic> topics = new ArrayList<>();
         for(Element thread : document.getElementsByClass("thread")) {
             topics.add(ListedTopic.fromElement(thread));
