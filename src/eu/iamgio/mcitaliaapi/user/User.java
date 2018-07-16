@@ -72,7 +72,7 @@ public class User {
      * @return Minecraft Italia user by name
      * @throws MinecraftItaliaException if the user doesn't exist
      */
-    public static User byName(String name) throws MinecraftItaliaException {
+    public static User fromName(String name) throws MinecraftItaliaException {
         try {
             return new User(name);
         } catch(NullPointerException e) {
@@ -81,11 +81,11 @@ public class User {
     }
 
     /**
-     * @param uid User's UID
+     * @param uid User's unique ID
      * @return Minecraft Italia user by UID
      * @throws MinecraftItaliaException if the user doesn't exist
      */
-    public static User byUid(long uid) throws MinecraftItaliaException {
+    public static User fromUid(long uid) throws MinecraftItaliaException {
         try {
             return new User(uid);
         } catch(NullPointerException e) {
