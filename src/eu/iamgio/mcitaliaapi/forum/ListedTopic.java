@@ -31,7 +31,7 @@ public class ListedTopic {
         Element titleElement = element.getElementsByClass("thread-title").first();
         Element titleLink = titleElement.getElementsByTag("a").first();
         String name = null;
-        String url = titleLink.attr("href");
+        String url = Forum.FORUM_URL + titleLink.attr("href").replace("?action=newpost", "");
         String iconUrl = element.getElementsByClass("thread-avatar").first().getElementsByTag("img").first().attr("src");
         UnparsedUser author = new UnparsedUser(element.getElementsByClass("thread-author").first().text());
         Element repliesElement = element.getElementsByClass("replies").first();

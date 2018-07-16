@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class Forum {
 
+    public static String FORUM_URL = "https://www.minecraft-italia.it/forum/";
+
     private Document document;
 
     private static Forum instance;
@@ -36,7 +38,7 @@ public class Forum {
      * Updates connection
      */
     public void update() {
-        this.document = new HttpConnection("https://www.minecraft-italia.it/forum/").connect().get();
+        this.document = new HttpConnection(Forum.FORUM_URL).connect().get();
     }
 
     /**
@@ -49,7 +51,7 @@ public class Forum {
             Element containerElement = containersElements.get(i);
             Element link = containerElement.getElementsByTag("a").first();
             String name = link.ownText();
-            String url = "https://www.minecraft-italia.it/forum/" + link.attr("href");
+            String url = FORUM_URL + link.attr("href");
             Element div = containerElement.parent().parent();
             containers.add(new ForumSectionContainer(name, url, div));
         }

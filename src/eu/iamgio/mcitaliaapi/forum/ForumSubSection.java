@@ -18,7 +18,7 @@ public class ForumSubSection {
 
     ForumSubSection(String name, String url) {
         this.name = name;
-        this.url = "https://www.minecraft-italia.it/forum/" + url;
+        this.url = Forum.FORUM_URL + url;
     }
 
     /**
