@@ -44,12 +44,13 @@ public class Forum {
      */
     public List<ForumSectionContainer> getSectionContainers() {
         List<ForumSectionContainer> containers = new ArrayList<>();
-        Elements containersElements = document.getElementsByClass("forum-section-title");
-        for(int i = 0; i < containers.size() - 1; i++) {
-            Element link = containersElements.get(i).getElementsByTag("a").first();
+        Elements containersElements = document.getElementsByClass("forum-section-title forumbit-head-seaction-title");
+        for(int i = 0; i < containersElements.size() - 1; i++) {
+            Element containerElement = containersElements.get(i);
+            Element link = containerElement.getElementsByTag("a").first();
             String name = link.ownText();
-            String url = link.attr("href");
-            Element div = document.getElementsByClass("forumbit-sections").get(i);
+            String url = "https://www.minecraft-italia.it/forum/" + link.attr("href");
+            Element div = containerElement.parent().parent();
             containers.add(new ForumSectionContainer(name, url, div));
         }
         return containers;
