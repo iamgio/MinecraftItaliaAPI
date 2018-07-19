@@ -54,6 +54,10 @@ public class Topic {
         return new Topic(url, page);
     }
 
+    /**
+     * @param page Page of the topic
+     * @return Posts of the topic in the selected page
+     */
     public List<TopicPost> getPosts(int page) {
         Document document;
         if(page == this.page) {
@@ -102,6 +106,13 @@ public class Topic {
             posts.add(new TopicPost(id, plainText, html, user, usersMessagesCount, usersTopicsCount, usersLikesReceivedCount, usersLikedPostsCount, usersLikesGivenCount, usersBadges, rawRegistrationDate, registrationDate, userOnline, likeGivers, usersSignatureHtml));
         }
         return posts;
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic is locked
+     */
+    public boolean isLocked() {
+        return document.getElementsByClass("mdi-lock-outline").size() > 0;
     }
 
     public List<TopicPost> getPosts() {
