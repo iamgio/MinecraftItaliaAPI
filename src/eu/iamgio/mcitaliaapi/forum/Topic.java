@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi.forum;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.user.UnparsedUser;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -115,7 +116,35 @@ public class Topic {
         return document.getElementsByClass("mdi-lock-outline").size() > 0;
     }
 
+    /**
+     * @return Posts of the topic inside of page n.{@link #page}
+     */
     public List<TopicPost> getPosts() {
         return getPosts(page);
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic has a poll
+     */
+    public boolean hasPoll() {
+        return document.getElementsByClass("tborder tfixed").size() > 0;
+    }
+
+    /**
+     * @return Poll of the topic
+     * @throws MinecraftItaliaException If there isn't an ongoing poll
+     */
+    public TopicPoll getPoll() throws MinecraftItaliaException {
+        Element tbody = document.getElementsByClass("tborder tfixed").first().getElementsByTag("tbody").first();
+        List<TopicPollMember> members = new ArrayList<>();
+        for(Element element : tbody.getElementsByTag("tr")) {
+            String name = element.child(0).ownText();
+            int count = Integer.parseInt(element.child(2).text());
+            double perc = Double.parseDouble(element.child(3).ownText().replace("%", ""));
+            members.add(new TopicPollMember(name, count, perc));
+            break;
+        }
+        int count = Integer.parseInt(document.getElementsByClass("tfoot").get(1).text().split(" ")[0]);
+        return new TopicPoll(members, count);
     }
 }
