@@ -146,4 +146,19 @@ public class ListedTopic {
     public boolean isPinned() {
         return pinned;
     }
+
+    /**
+     * @return Listed topic to actual topic
+     */
+    public Topic toTopic() {
+        return Topic.fromUrl(url);
+    }
+
+    /**
+     * @param page Start page
+     * @return Listed topic to actual topic
+     */
+    public Topic toTopic(int page) {
+        return Topic.fromUrl(url, page);
+    }
 }
