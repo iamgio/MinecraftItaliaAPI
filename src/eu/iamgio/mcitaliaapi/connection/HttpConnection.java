@@ -104,4 +104,14 @@ public class HttpConnection {
         this.connection = connection.data(k, v);
         return this;
     }
+
+    /**
+     * Adds body to request
+     * @param body Body string
+     * @return This for concatenating
+     */
+    public HttpConnection requestBody(String body) {
+        this.connection = connection.requestBody(body);
+        return this;
+    }
 }

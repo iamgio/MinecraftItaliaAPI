@@ -27,7 +27,7 @@ public class User {
     private String url;
     private Document document;
 
-    private String name;
+    private String name, postKey;
     private Long uid;
 
     User(String name) {
@@ -123,7 +123,10 @@ public class User {
      * @return User's post key
      */
     public String getPostKey() {
-        return document.select("input[name=my_post_key]").attr("value");
+        if(postKey == null) {
+            postKey = document.select("input[name=my_post_key]").attr("value");
+        }
+        return postKey;
     }
 
     /**

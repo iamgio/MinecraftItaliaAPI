@@ -19,8 +19,10 @@ import java.util.Locale;
  */
 public class Topic {
 
-    private String url, standardUrl;
+    private String url, standardUrl, postHash;
     private Document document;
+
+    private long id;
 
     private int page;
 
@@ -56,6 +58,39 @@ public class Topic {
     }
 
     /**
+     * @return Topic ID
+     */
+    public long getId() {
+        if(id == 0) {
+            id = Long.parseLong(document.select("input[name=tid]").attr("value"));
+        }
+        return id;
+    }
+
+    /**
+     * @return Post hash of topic
+     * @throws MinecraftItaliaException if there isn't any logged user
+     */
+    public String getPostHash() throws MinecraftItaliaException {
+        if(postHash == null) {
+            Element postHashElement = document.getElementById("posthash");
+            if(postHashElement == null) throw new MinecraftItaliaException("There isn't any logged user: could not find post hash.");
+            postHash = postHashElement.attr("value");
+        }
+        return postHash;
+    }
+
+    /**
+     * @return Subject of new replies to the topic
+     * @throws MinecraftItaliaException if there isn't any logged user
+     */
+    public String getReplySubject() throws MinecraftItaliaException {
+        Element subjectElement = document.select("input[name=subject]").first();
+        if(subjectElement == null) throw new MinecraftItaliaException("There isn't any logged user: could not find subject.");
+        return subjectElement.attr("value");
+    }
+
+    /**
      * @param page Page of the topic
      * @return Posts of the topic in the selected page
      */
@@ -76,7 +111,7 @@ public class Topic {
             UnparsedUser user = new UnparsedUser(authorElement.getElementsByClass("username-inner").first().text());
             Element statisticsElement = authorElement.getElementsByClass("author_statistics").first();
             String[] statisticsParts = statisticsElement.ownText().split(" ");
-            int usersMessagesCount = Integer.parseInt(statisticsParts[1]);
+            int usersMessagesCount = Integer.parseInt(statisticsParts[1].replace(",", ""));
             String rawRegistrationDate = statisticsParts[statisticsParts.length - 2] + " " + statisticsParts[statisticsParts.length - 1];
             Date registrationDate = null;
             try {
@@ -142,7 +177,6 @@ public class Topic {
             int count = Integer.parseInt(element.child(2).text());
             double perc = Double.parseDouble(element.child(3).ownText().replace("%", ""));
             members.add(new TopicPollMember(name, count, perc));
-            break;
         }
         int count = Integer.parseInt(document.getElementsByClass("tfoot").get(1).text().split(" ")[0]);
         return new TopicPoll(members, count);

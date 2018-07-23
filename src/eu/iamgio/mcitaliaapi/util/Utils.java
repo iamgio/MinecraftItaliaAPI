@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi.util;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -32,5 +33,18 @@ public class Utils {
             arr[i] = value;
         }
         return arr;
+    }
+
+    public static String retrieveErrorFromJson(JSONObject object) {
+        try {
+            JSONArray errors = (JSONArray) object.get("errors");
+            if(errors != null) {
+                String error = errors.get(0).toString();
+                return error.startsWith("[\"") && error.endsWith("\"]") ? error.substring(2, error.length() - 2) : error;
+            }
+        } catch(NullPointerException e) {
+            return null;
+        }
+        return null;
     }
 }

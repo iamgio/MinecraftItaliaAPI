@@ -6,6 +6,10 @@ import eu.iamgio.mcitaliaapi.board.BoardPostComment;
 import eu.iamgio.mcitaliaapi.board.BoardPostReply;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
+import eu.iamgio.mcitaliaapi.forum.Topic;
+import eu.iamgio.mcitaliaapi.forum.TopicPost;
+import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
@@ -64,6 +68,44 @@ public class LoggedUser extends User {
                 .data("status", "1")
                 .data("uid", String.valueOf(uid))
                 .post();
+    }
+
+    /**
+     * Creates a post inside of topic
+     * @param topic Topic
+     * @param text Text of the post
+     * @throws MinecraftItaliaException if an error occurred
+     */
+    public void replyToTopic(Topic topic, String text) throws MinecraftItaliaException {
+        Document document = new HttpConnection("https://www.minecraft-italia.it/forum/newreply.php?ajax=1").connect()
+                .data("action", "do_newreply")
+                .data("frompage", "1")
+                .data("lastpid", "1")
+                .data("message", text)
+                .data("method", "quickreply")
+                .data("my_post_key", getPostKey())
+                .data("posthash", topic.getPostHash())
+                .data("postoptions[signature]", "1")
+                .data("subject", topic.getReplySubject())
+                .data("tid", String.valueOf(topic.getId()))
+                .post();
+        String error = Utils.retrieveErrorFromJson(new JSONParser(document).parse());
+        if(error != null) throw new MinecraftItaliaException(error);
+    }
+
+    /**
+     * Edits a user's post
+     * @param post Target post
+     * @param text Edited text
+     * @throws MinecraftItaliaException if an error occurred
+     */
+    public void editPost(TopicPost post, String text) throws MinecraftItaliaException {
+        Document document = new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php?action=edit_post&do=update_post&pid=" + post.getId() + "&my_post_key=" + getPostKey()).connect()
+                .data("id", "pid_" + post.getId())
+                .data("value", text)
+                .post();
+        String error = Utils.retrieveErrorFromJson(new JSONParser(document).parse());
+        if(error != null) throw new MinecraftItaliaException(error);
     }
 
     /**
