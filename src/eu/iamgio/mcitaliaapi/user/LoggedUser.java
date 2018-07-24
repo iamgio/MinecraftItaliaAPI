@@ -7,6 +7,7 @@ import eu.iamgio.mcitaliaapi.board.BoardPostReply;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
+import eu.iamgio.mcitaliaapi.forum.ForumSubSection;
 import eu.iamgio.mcitaliaapi.forum.Topic;
 import eu.iamgio.mcitaliaapi.forum.TopicPost;
 import eu.iamgio.mcitaliaapi.util.Utils;
@@ -68,6 +69,16 @@ public class LoggedUser extends User {
                 .data("status", "1")
                 .data("uid", String.valueOf(uid))
                 .post();
+    }
+
+    /**
+     * @param section Section of the topic
+     * @param title Title of the topic
+     * @param text Text of the topic
+     * @return Object that will be used to manage attributes of the new topic
+     */
+    public NewTopic newTopic(ForumSubSection section, String title, String text) {
+        return new NewTopic(this, title, text, section);
     }
 
     /**

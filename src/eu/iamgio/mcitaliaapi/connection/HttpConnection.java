@@ -105,6 +105,11 @@ public class HttpConnection {
         return this;
     }
 
+    public HttpConnection header(String k, String v) {
+        this.connection = connection.header(k, v);
+        return this;
+    }
+
     /**
      * Adds body to request
      * @param body Body string

@@ -12,7 +12,8 @@ import java.util.List;
  */
 public class ForumSubSection {
 
-    protected String name, url;
+    private String name, url;
+    private int fid;
 
     private Document document;
 
@@ -50,6 +51,21 @@ public class ForumSubSection {
         return Integer.parseInt(document.getElementsByClass("pagination_last").first().ownText());
     }
 
+    /**
+     * @return ID of the section
+     */
+    public int getId() {
+        if(fid == 0) {
+            if(document == null) update();
+            fid = Integer.parseInt(document.select("input[name=fid]").attr("value"));
+        }
+        return fid;
+    }
+
+    /**
+     * @param page Page to get the topics in
+     * @return Listed topics
+     */
     public List<ListedTopic> getTopics(int page) {
         Document document;
         if(page == 0) {
