@@ -91,6 +91,15 @@ public class Topic {
     }
 
     /**
+     * @return Section of the topic
+     */
+    public ForumSubSection getSection() {
+        if(document == null) update();
+        Element item = document.getElementsByAttributeValue("itemprop", "itemListElement").last().child(0);
+        return new ForumSubSection(item.ownText(), item.attr("href"));
+    }
+
+    /**
      * @param page Page of the topic
      * @return Posts of the topic in the selected page
      */

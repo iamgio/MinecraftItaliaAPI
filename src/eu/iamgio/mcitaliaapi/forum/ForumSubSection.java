@@ -76,7 +76,7 @@ public class ForumSubSection {
         }
         List<ListedTopic> topics = new ArrayList<>();
         for(Element thread : document.getElementsByClass("thread")) {
-            topics.add(ListedTopic.fromElement(thread));
+            topics.add(ListedTopic.fromElement(thread, this));
         }
         return topics;
     }

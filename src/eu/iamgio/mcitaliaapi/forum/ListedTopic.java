@@ -11,17 +11,19 @@ public class ListedTopic {
 
     private String name, iconUrl, url, rawLastReplyDate;
     private UnparsedUser author, lastReplyAuthor;
+    private ForumSubSection section;
     private int repliesCount, viewsCount;
     private TopicPrefix prefix;
     private boolean announcement, pinned, poll, moved;
 
-    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned, boolean poll, boolean moved) {
+    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, ForumSubSection section, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned, boolean poll, boolean moved) {
         this.name = name;
         this.iconUrl = iconUrl;
         this.url = url;
         this.rawLastReplyDate = rawLastReplyDate;
         this.author = author;
         this.lastReplyAuthor = lastReplyAuthor;
+        this.section = section;
         this.repliesCount = repliesCount;
         this.viewsCount = viewsCount;
         this.prefix = prefix;
@@ -31,7 +33,7 @@ public class ListedTopic {
         this.moved = moved;
     }
 
-    static ListedTopic fromElement(Element element) {
+    static ListedTopic fromElement(Element element, ForumSubSection section) {
         Element lastReplyElement = element.parent().getElementsByClass("thread-lastpost").first();
         Element titleLink = null;
         for(Element link : element.getElementsByTag("a")) {
@@ -80,7 +82,7 @@ public class ListedTopic {
 
         boolean poll = threadTitle.ownText().contains("Sondaggio:");
         boolean moved = threadTitle.ownText().contains("Spostato:");
-        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned, poll, moved);
+        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, section, repliesCount, viewsCount, prefix, announcement, pinned, poll, moved);
     }
 
     /**
@@ -123,6 +125,13 @@ public class ListedTopic {
      */
     public UnparsedUser getLastReplyAuthor() {
         return lastReplyAuthor;
+    }
+
+    /**
+     * @return Topic section
+     */
+    public ForumSubSection getSection() {
+        return section;
     }
 
     /**

@@ -1,13 +1,18 @@
 package eu.iamgio.mcitaliaapi.forum;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import eu.iamgio.mcitaliaapi.user.UnparsedUser;
 import eu.iamgio.mcitaliaapi.util.Pair;
+import eu.iamgio.mcitaliaapi.util.Utils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +61,27 @@ public class Forum {
             containers.add(new ForumSectionContainer(name, url, div));
         }
         return containers;
+    }
+
+    /**
+     * @return Last 30 topics
+     */
+    public List<LastTopic> getLastTopics() {
+        JSONObject object = new JSONParser("https://www.minecraft-italia.it/api/new_topics").parse();
+        List<LastTopic> lastTopics = new ArrayList<>();
+        for(Object topicObj : (JSONArray) object.get("topics")) {
+            JSONObject topicJson = (JSONObject) topicObj;
+            String name = topicJson.get("thread_subject").toString();
+            String url = topicJson.get("thread_url").toString();
+            String firstMessageText = topicJson.get("thread_message").toString();
+            UnparsedUser author = new UnparsedUser(topicJson.get("author_name").toString());
+            long id = (long) topicJson.get("thread_id");
+            long authorUid = (long) topicJson.get("author_uid");
+            ForumSubSection section = new ForumSubSection(topicJson.get("forum_name").toString(), topicJson.get("forum_url").toString());
+            Date date = Utils.getDateByTimestamp(topicJson.get("date_timestamp").toString());
+            lastTopics.add(new LastTopic(name, url, firstMessageText, author, id, authorUid, section, date));
+        }
+        return lastTopics;
     }
 
     /**
