@@ -13,9 +13,9 @@ public class ListedTopic {
     private UnparsedUser author, lastReplyAuthor;
     private int repliesCount, viewsCount;
     private TopicPrefix prefix;
-    private boolean announcement, pinned, poll;
+    private boolean announcement, pinned, poll, moved;
 
-    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned, boolean poll) {
+    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned, boolean poll, boolean moved) {
         this.name = name;
         this.iconUrl = iconUrl;
         this.url = url;
@@ -28,6 +28,7 @@ public class ListedTopic {
         this.announcement = announcement;
         this.pinned = pinned;
         this.poll = poll;
+        this.moved = moved;
     }
 
     static ListedTopic fromElement(Element element) {
@@ -52,7 +53,8 @@ public class ListedTopic {
         Element lastReplyAuthorElement = lastReplyElement.getElementsByClass("load-user-box").first();
         UnparsedUser lastReplyAuthor = lastReplyAuthorElement == null ? author : new UnparsedUser(lastReplyAuthorElement.text());
         TopicPrefix prefix = null;
-        for(Element span : element.getElementsByClass("thread-title").first().getElementsByTag("span")) {
+        Element threadTitle = element.getElementsByClass("thread-title").first();
+        for(Element span : threadTitle.getElementsByTag("span")) {
             if(!span.hasText() || !span.text().startsWith("[") || !span.hasAttr("style")) continue;
             String prefixText = span.text();
             String[] prefixStyleParts = span.attr("style").split(";");
@@ -75,8 +77,10 @@ public class ListedTopic {
                 }
             }
         }
-        boolean poll = element.getElementsByClass("thread-title").first().ownText().startsWith("Sondaggio:");
-        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned, poll);
+
+        boolean poll = threadTitle.ownText().contains("Sondaggio:");
+        boolean moved = threadTitle.ownText().contains("Spostato:");
+        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned, poll, moved);
     }
 
     /**
@@ -168,6 +172,13 @@ public class ListedTopic {
      */
     public boolean hasPoll() {
         return poll;
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic was moved from another section
+     */
+    public boolean wasMoved() {
+        return moved;
     }
 
     /**
