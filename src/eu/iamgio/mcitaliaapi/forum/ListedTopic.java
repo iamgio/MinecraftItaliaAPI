@@ -13,9 +13,9 @@ public class ListedTopic {
     private UnparsedUser author, lastReplyAuthor;
     private int repliesCount, viewsCount;
     private TopicPrefix prefix;
-    private boolean announcement, pinned;
+    private boolean announcement, pinned, poll;
 
-    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned) {
+    ListedTopic(String name, String iconUrl, String url, String rawLastReplyDate, UnparsedUser author, UnparsedUser lastReplyAuthor, int repliesCount, int viewsCount, TopicPrefix prefix, boolean announcement, boolean pinned, boolean poll) {
         this.name = name;
         this.iconUrl = iconUrl;
         this.url = url;
@@ -27,11 +27,19 @@ public class ListedTopic {
         this.prefix = prefix;
         this.announcement = announcement;
         this.pinned = pinned;
+        this.poll = poll;
     }
 
     static ListedTopic fromElement(Element element) {
         Element lastReplyElement = element.parent().getElementsByClass("thread-lastpost").first();
-        Element titleLink = element.getElementsByTag("a").first();
+        Element titleLink = null;
+        for(Element link : element.getElementsByTag("a")) {
+            if(link.hasText()) {
+                titleLink = link;
+                break;
+            }
+        }
+        assert titleLink != null;
         String name = titleLink.text();
         String url = Forum.FORUM_URL + titleLink.attr("href").replace("?action=newpost", "");
         String iconUrl = element.getElementsByClass("thread-avatar").first().getElementsByTag("img").first().attr("src");
@@ -44,8 +52,8 @@ public class ListedTopic {
         Element lastReplyAuthorElement = lastReplyElement.getElementsByClass("load-user-box").first();
         UnparsedUser lastReplyAuthor = lastReplyAuthorElement == null ? author : new UnparsedUser(lastReplyAuthorElement.text());
         TopicPrefix prefix = null;
-        for(Element span : element.getElementsByClass("thread-title").first().getElementsByClass("span")) {
-            if(!span.hasText() && !span.hasAttr("style")) continue;
+        for(Element span : element.getElementsByClass("thread-title").first().getElementsByTag("span")) {
+            if(!span.hasText() || !span.text().startsWith("[") || !span.hasAttr("style")) continue;
             String prefixText = span.text();
             String[] prefixStyleParts = span.attr("style").split(";");
             String prefixColor = prefixStyleParts[0].substring("color: ".length(), prefixStyleParts[0].length());
@@ -67,7 +75,8 @@ public class ListedTopic {
                 }
             }
         }
-        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned);
+        boolean poll = element.getElementsByClass("thread-title").first().ownText().startsWith("Sondaggio:");
+        return new ListedTopic(name, iconUrl, url, rawLastReplyDate, author, lastReplyAuthor, repliesCount, viewsCount, prefix, announcement, pinned, poll);
     }
 
     /**
@@ -134,6 +143,13 @@ public class ListedTopic {
     }
 
     /**
+     * @return <tt>true</tt> if the topic has prefix
+     */
+    public boolean hasPrefix() {
+        return prefix != null;
+    }
+
+    /**
      * @return <tt>true</tt> if the topic is an announcement by the Minecraft Italia staff
      */
     public boolean isAnnouncement() {
@@ -145,6 +161,13 @@ public class ListedTopic {
      */
     public boolean isPinned() {
         return pinned;
+    }
+
+    /**
+     * @return <tt>true</tt> if the topic has poll
+     */
+    public boolean hasPoll() {
+        return poll;
     }
 
     /**
