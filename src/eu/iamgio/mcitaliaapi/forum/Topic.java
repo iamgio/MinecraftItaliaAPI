@@ -170,13 +170,23 @@ public class Topic {
      * @throws MinecraftItaliaException If there isn't an ongoing poll
      */
     public TopicPoll getPoll() throws MinecraftItaliaException {
-        Element tbody = document.getElementsByClass("tborder tfixed").first().getElementsByTag("tbody").first();
+        if(!hasPoll()) throw new MinecraftItaliaException("There isn't an ongoing poll.");
+        String resultsUrl = document.getElementsContainingOwnText("Mostra risultato").first().attr("href");
+        Document document = new HttpConnection(Forum.FORUM_URL + resultsUrl).connect().get();
+        Element tbody = document.getElementsByTag("tbody").first();
         List<TopicPollMember> members = new ArrayList<>();
         for(Element element : tbody.getElementsByTag("tr")) {
+            if(element.child(0).className().equals("tfoot")) continue;
             String name = element.child(0).ownText();
             int count = Integer.parseInt(element.child(2).text());
             double perc = Double.parseDouble(element.child(3).ownText().replace("%", ""));
-            members.add(new TopicPollMember(name, count, perc));
+            List<UnparsedUser> users = new ArrayList<>();
+            for(Element userElement : element.getElementsByTag("a")) {
+                if(userElement.attr("href").startsWith("https://www.minecraft-italia.it/forum/u-")) {
+                    users.add(new UnparsedUser(userElement.ownText()));
+                }
+            }
+            members.add(new TopicPollMember(name, count, perc, users));
         }
         int count = Integer.parseInt(document.getElementsByClass("tfoot").get(1).text().split(" ")[0]);
         return new TopicPoll(members, count);
