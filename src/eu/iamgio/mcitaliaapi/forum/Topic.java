@@ -189,6 +189,7 @@ public class Topic {
             members.add(new TopicPollMember(name, count, perc, users));
         }
         int count = Integer.parseInt(document.getElementsByClass("tfoot").get(1).text().split(" ")[0]);
-        return new TopicPoll(members, count);
+        long id = Long.parseLong(resultsUrl.substring(33, resultsUrl.length()));
+        return new TopicPoll(members, count, id, isLocked());
     }
 }

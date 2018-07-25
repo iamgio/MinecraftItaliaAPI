@@ -9,6 +9,7 @@ import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.forum.ForumSubSection;
 import eu.iamgio.mcitaliaapi.forum.Topic;
+import eu.iamgio.mcitaliaapi.forum.TopicPoll;
 import eu.iamgio.mcitaliaapi.forum.TopicPost;
 import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
@@ -117,6 +118,22 @@ public class LoggedUser extends User {
                 .post();
         String error = Utils.retrieveErrorFromJson(new JSONParser(document).parse());
         if(error != null) throw new MinecraftItaliaException(error);
+    }
+
+    /**
+     * Votes to an open poll
+     * @param poll Target poll
+     * @param option Option index (starts at 0)
+     * @throws MinecraftItaliaException if the poll is locked
+     */
+    public void votePoll(TopicPoll poll, int option) throws MinecraftItaliaException {
+        if(poll.isLocked()) throw new MinecraftItaliaException("Poll is locked.");
+        new HttpConnection("https://www.minecraft-italia.it/forum/polls.php")
+                .data("action", "vote")
+                .data("my_post_key", getPostKey())
+                .data("option", String.valueOf(option + 1))
+                .data("pid", String.valueOf(poll.getId()))
+                .post();
     }
 
     /**

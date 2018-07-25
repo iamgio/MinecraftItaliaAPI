@@ -10,10 +10,14 @@ public class TopicPoll {
 
     private List<TopicPollMember> members;
     private int count;
+    private boolean locked;
+    private long id;
 
-    TopicPoll(List<TopicPollMember> members, int count) {
+    TopicPoll(List<TopicPollMember> members, int count, long id, boolean locked) {
         this.members = members;
         this.count = count;
+        this.id = id;
+        this.locked = locked;
     }
 
     /**
@@ -28,5 +32,19 @@ public class TopicPoll {
      */
     public int getCount() {
         return count;
+    }
+
+    /**
+     * @return <tt>true</tt> if the poll is locked
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    /**
+     * @return Poll ID
+     */
+    public long getId() {
+        return id;
     }
 }
