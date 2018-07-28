@@ -55,7 +55,7 @@ public class User {
         return document.getElementsByClass("profile-counts forms").first().child(0).child(index);
     }
 
-    private Element getInfoProperty(String key) throws MinecraftItaliaException {
+    private Element getInfoProperty(String key) {
         Element table = document.getElementsByClass("profile-more-info").first()
                 .getElementsByClass("collection-item").first();
         for(Element element : table.getElementsByClass("row")) {
@@ -63,13 +63,13 @@ public class User {
                 return element.child(1);
             }
         }
-        throw new MinecraftItaliaException("The user does not have this information.");
+        return null;
     }
 
 
     /**
      * @param name User's name
-     * @return Minecraft Italia user by name
+     * @return User by name. <tt>null</tt> if it does not exist
      */
     public static User fromName(String name) {
         try {
@@ -81,7 +81,7 @@ public class User {
 
     /**
      * @param uid User's unique ID
-     * @return Minecraft Italia user by UID
+     * @return User by UID. <tt>null</tt> if it does not exist
      */
     public static User fromUid(long uid) {
         try {
@@ -216,52 +216,49 @@ public class User {
     }
 
     /**
-     * @return User's Minecraft username
-     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     * @return User's Minecraft username. <tt>null</tt> if the user hasn't a linked Minecraft account
      */
-    public String getMinecraftUsername() throws MinecraftItaliaException {
+    public String getMinecraftUsername() {
         Elements names = document.getElementsByClass("profile-info").first().getElementsByClass("username");
-        if(names.size() == 0) throw new MinecraftItaliaException("The user does not have a linked Minecraft account.");
+        if(names.size() == 0) return null;
         return names.first().text();
     }
 
     /**
-     * @return User's Minecraft skin (head)
-     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     * @return User's Minecraft skin (head). <tt>null</tt> if the user hasn't a linked Minecraft account
      */
-    public String getMinecraftSkinUrl() throws MinecraftItaliaException {
-        if(!hasMinecraftAccount()) throw new MinecraftItaliaException("The user does not have a linked Minecraft account.");
+    public String getMinecraftSkinUrl() {
+        if(!hasMinecraftAccount()) return null;
         return document.getElementsByClass("profile-info").first().getElementsByTag("img").first().attr("src");
     }
 
     /**
      * @param size Size of the image
-     * @return User's Minecraft skin (head)
-     * @throws MinecraftItaliaException if the user hasn't a linked Minecraft account
+     * @return User's Minecraft skin (head). <tt>null</tt> if the user hasn't a linked Minecraft account
      */
-    public String getMinecraftSkinUrl(int size) throws MinecraftItaliaException {
+    public String getMinecraftSkinUrl(int size) {
         String url = getMinecraftSkinUrl();
+        if(url == null) return null;
         int substringStart = "https://minepic.org/avatar/".length();
         int substringEnd = substringStart + 2;
         return url.substring(0, substringStart) + size + url.substring(substringEnd, url.length());
     }
 
     /**
-     * @return User's biography
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return User's biography. <tt>null</tt> if the user hasn't a saved biography
      */
-    public String getBio() throws MinecraftItaliaException {
+    public String getBio() {
         Elements bio = document.getElementsByClass("profile-bio");
-        if(bio.size() == 0) throw new MinecraftItaliaException("The user does not have this information.");
+        if(bio.size() == 0) return null;
         return bio.first().getElementsByClass("collection-item").first().ownText();
     }
 
     /**
-     * @return User's average messages-per-day count
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return User's average messages-per-day count. <tt>null</tt> if this information cannot be retrieved
      */
-    public float getMessagesPerDayCount() throws MinecraftItaliaException {
+    public Float getMessagesPerDayCount() {
         Element element = getInfoProperty("Messaggi");
+        if(element == null) return null;
         try {
             return Float.parseFloat(element.text().split("\\(")[1].split(" ")[0]);
         } catch(ArrayIndexOutOfBoundsException e) {
@@ -270,37 +267,37 @@ public class User {
     }
 
     /**
-     * @return Date of user's registration
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return Date of user's registration. <tt>null</tt> if this information cannot be retrieved
      */
-    public Date getRegistrationDate() throws MinecraftItaliaException {
+    public Date getRegistrationDate() {
         Element element = getInfoProperty("Iscritto dal");
+        if(element == null) return null;
         return Utils.getDateByTimestamp(element.child(0).attr("data-timestamp"));
     }
 
     /**
-     * @return Date of user's last visit
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return Date of user's last visit. <tt>null</tt> if this information cannot be retrieved
      */
-    public Date getLastVisitDate() throws MinecraftItaliaException {
+    public Date getLastVisitDate() {
         Element element = getInfoProperty("Ultima visita");
+        if(element == null) return null;
         return Utils.getDateByTimestamp(element.child(0).attr("data-timestamp"));
     }
 
     /**
-     * @return Time the user has spent online, unparsed
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return Time the user has spent online, unparsed. <tt>null</tt> if this information cannot be retrieved
      */
-    public String getRawOnlineTime() throws MinecraftItaliaException {
-        return getInfoProperty("Tempo online").text();
+    public String getRawOnlineTime() {
+        Element element = getInfoProperty("Tempo online");
+        return element == null ? null : element.text();
     }
 
     /**
-     * @return Time the user has spent online in millis
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return Time the user has spent online in millis. <tt>null</tt> if this information cannot be retrieved
      */
-    public long getOnlineTime() throws MinecraftItaliaException {
+    public Long getOnlineTime() {
         String raw = getRawOnlineTime();
+        if(raw == null) return null;
         String[] parts = raw.split(", ");
         long time = 0L;
         for(String part : parts) {
@@ -338,19 +335,19 @@ public class User {
     }
 
     /**
-     * @return User's gender
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return User's gender. <tt>null</tt> if the user hasn't specified this value
      */
-    public Gender getGender() throws MinecraftItaliaException {
-        return getInfoProperty("Sesso").text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
+    public Gender getGender() {
+        Element element = getInfoProperty("Sesso");
+        return element == null ? null : element.text().equals("Maschio") ? Gender.MALE : Gender.FEMALE;
     }
 
     /**
-     * @return User's provenance
-     * @throws MinecraftItaliaException if the user hasn't this information saved
+     * @return User's provenance. <tt>null</tt> if the user hasn't specified this value
      */
-    public String getProvenance() throws MinecraftItaliaException {
-        return getInfoProperty("Provenienza").text();
+    public String getProvenance() {
+        Element element = getInfoProperty("Provenienza");
+        return element == null ? null : element.text();
     }
 
     /**
