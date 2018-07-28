@@ -70,26 +70,24 @@ public class User {
     /**
      * @param name User's name
      * @return Minecraft Italia user by name
-     * @throws MinecraftItaliaException if the user doesn't exist
      */
-    public static User fromName(String name) throws MinecraftItaliaException {
+    public static User fromName(String name) {
         try {
             return new User(name);
         } catch(NullPointerException e) {
-            throw new MinecraftItaliaException("Can't find user " + name);
+            return null;
         }
     }
 
     /**
      * @param uid User's unique ID
      * @return Minecraft Italia user by UID
-     * @throws MinecraftItaliaException if the user doesn't exist
      */
-    public static User fromUid(long uid) throws MinecraftItaliaException {
+    public static User fromUid(long uid) {
         try {
             return new User(uid);
         } catch(NullPointerException e) {
-            throw new MinecraftItaliaException("Can't find user with UID " + uid);
+            return null;
         }
     }
 
