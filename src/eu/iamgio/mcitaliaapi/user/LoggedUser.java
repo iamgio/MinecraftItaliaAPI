@@ -1,5 +1,6 @@
 package eu.iamgio.mcitaliaapi.user;
 
+import com.sun.istack.internal.Nullable;
 import eu.iamgio.mcitaliaapi.board.Board;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.board.BoardPostComment;
@@ -16,6 +17,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -156,24 +161,6 @@ public class LoggedUser extends User {
     }
 
     /**
-     * Creates a board post
-     * @param text Text of the post
-     * @param uid_to Target UID
-     * @return New post
-     */
-    private BoardPost createBoardPost(String text, String uid_to) {
-        Document document = new HttpConnection("https://www.minecraft-italia.it/board/post_add").connect()
-                .data("content", text)
-                .data("uid_to", uid_to)
-                .data("url_preview", "")
-                .post();
-        JSONObject object = new JSONParser(document).parse();
-        JSONObject data = (JSONObject) object.get("data");
-        JSONObject post = (JSONObject) data.get("post");
-        return BoardPost.fromJsonObject(post);
-    }
-
-    /**
      * @return Friends' first 15 board posts
      */
     public List<BoardPost> getFriendsBoardPosts() {
@@ -188,24 +175,109 @@ public class LoggedUser extends User {
         return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=friends&filter[uid]=0&start=" + start.getId());
     }
 
+    private String retrieveMediaId(File imageFile) throws MinecraftItaliaException, IOException {
+        /*long boundary = 0;
+        while(boundary == 0 || imageFile.getName().contains(String.valueOf(boundary))) {
+            boundary = new Random().nextLong();
+        }*/
+        HttpConnection imageConnection = new HttpConnection("https://www.minecraft-italia.it/board/image_add").connect()
+                /*.header("Content-Type", "multipart/form-data; boundary=---------------------------" + boundary)
+                .requestBody("-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"image\"; filename=\"" + imageFile.getName() + "\"\n" + "Content-Type: image/png\n\n"
+                        + new String(Files.readAllBytes(imageFile.toPath()))
+                        + "\n-----------------------------" + boundary + "--");*/
+                .data("image", imageFile.getName(), new FileInputStream(imageFile));
+        JSONObject json = new JSONParser(imageConnection.post()).parse();
+        if(json.get("status").equals("error")) {
+            throw new MinecraftItaliaException(json.get("descr").toString());
+        }
+        JSONObject data = (JSONObject) json.get("data");
+        return data.get("image_id").toString();
+    }
+
+
+    /**
+     * Creates a board post
+     * @param text Text of the post
+     * @param uid_to Target UID
+     * @param parameters Additional parameters to add inside of the request
+     * @return New post
+     */
+    private BoardPost createBoardPost(String text, String uid_to, @Nullable HashMap<String, String> parameters) {
+        HttpConnection connection = new HttpConnection("https://www.minecraft-italia.it/board/post_add").connect()
+                .data("content", text)
+                .data("uid_to", uid_to)
+                .data("url_preview", "");
+        if(parameters != null) {
+            for(String parameter : parameters.keySet()) {
+                connection = connection.data(parameter, parameters.get(parameter));
+            }
+        }
+        Document document = connection.post();
+        JSONObject object = new JSONParser(document).parse();
+        JSONObject data = (JSONObject) object.get("data");
+        JSONObject post = (JSONObject) data.get("post");
+        return BoardPost.fromJsonObject(post);
+    }
+
     /**
      * Creates a board post
      * @param text Text of the post
      * @return New post
      */
     public BoardPost createBoardPost(String text) {
-        return createBoardPost(text, "0");
+        return createBoardPost(text, "0", null);
+    }
+
+    /**
+     * Creates a board post with an image
+     * @param text Text of the post
+     * @param imageFile Image file
+     * @return New post
+     * @throws MinecraftItaliaException if an error occurred during the image upload
+     * @throws IOException if an error occurred during the image read
+     */
+    public BoardPost createBoardPost(String text, File imageFile) throws MinecraftItaliaException, IOException {
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("media[]", retrieveMediaId(imageFile));
+        return createBoardPost(text, "0", parameters);
     }
 
     /**
      * Creates a board post
      * @param text Text of the post
-     * @param target Target user
+     * @param targetUid Target user's UID
      * @return New post
      */
-    public BoardPost createBoardPost(String text, UnparsedUser target) {
-        return createBoardPost(text, String.valueOf(target.getName()));
+    public BoardPost createBoardPost(String text, long targetUid) {
+        return createBoardPost(text, String.valueOf(targetUid), null);
     }
+
+    /**
+     * Creates a board post with an image
+     * @param text Text of the post
+     * @param imageFile Image file
+     * @param targetUid Target user's UID
+     * @return New post
+     * @throws MinecraftItaliaException if an error occurred during the image upload
+     * @throws IOException if an error occurred during the image read
+     */
+    public BoardPost createBoardPost(String text, File imageFile, long targetUid) throws MinecraftItaliaException, IOException {
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("media[]", retrieveMediaId(imageFile));
+        return createBoardPost(text, String.valueOf(targetUid), parameters);
+    }
+
+    /**
+     * Removes a board post
+     * @param post Post to remove
+     */
+    public void removeBoardPost(BoardPost post) {
+        new HttpConnection("https://www.minecraft-italia.it/board/post_remove").connect()
+                .data("pid", String.valueOf(post.getId()))
+                .post();
+    }
+
+
 
     /**
      * Comments a board post
@@ -241,16 +313,6 @@ public class LoggedUser extends User {
         JSONObject data = (JSONObject) object.get("data");
         JSONObject reply = (JSONObject) data.get("comment");
         return BoardPostReply.fromJsonObject(reply);
-    }
-
-    /**
-     * Removes a board post
-     * @param post Post to remove
-     */
-    public void removeBoardPost(BoardPost post) {
-        new HttpConnection("https://www.minecraft-italia.it/board/post_remove").connect()
-                .data("pid", String.valueOf(post.getId()))
-                .post();
     }
 
     /**

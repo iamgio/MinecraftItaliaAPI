@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -105,6 +106,24 @@ public class HttpConnection {
         return this;
     }
 
+    /**
+     * Adds file parameter to request
+     * @param k Parameter name
+     * @param name File name
+     * @param inputStream Input stream
+     * @return This for concatenating
+     */
+    public HttpConnection data(String k, String name, InputStream inputStream) {
+        this.connection = connection.data(k, name, inputStream);
+        return this;
+    }
+
+    /**
+     * Adds header to request
+     * @param k Key
+     * @param v Value
+     * @return This for concatenating
+     */
     public HttpConnection header(String k, String v) {
         this.connection = connection.header(k, v);
         return this;
