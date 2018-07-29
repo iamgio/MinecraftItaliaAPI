@@ -176,15 +176,7 @@ public class LoggedUser extends User {
     }
 
     private String retrieveMediaId(File imageFile) throws MinecraftItaliaException, IOException {
-        /*long boundary = 0;
-        while(boundary == 0 || imageFile.getName().contains(String.valueOf(boundary))) {
-            boundary = new Random().nextLong();
-        }*/
         HttpConnection imageConnection = new HttpConnection("https://www.minecraft-italia.it/board/image_add").connect()
-                /*.header("Content-Type", "multipart/form-data; boundary=---------------------------" + boundary)
-                .requestBody("-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"image\"; filename=\"" + imageFile.getName() + "\"\n" + "Content-Type: image/png\n\n"
-                        + new String(Files.readAllBytes(imageFile.toPath()))
-                        + "\n-----------------------------" + boundary + "--");*/
                 .data("image", imageFile.getName(), new FileInputStream(imageFile));
         JSONObject json = new JSONParser(imageConnection.post()).parse();
         if(json.get("status").equals("error")) {
