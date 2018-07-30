@@ -3,6 +3,8 @@ package eu.iamgio.mcitaliaapi.user;
 import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.util.Map;
 
@@ -75,6 +77,19 @@ public class Login {
             throw new MinecraftItaliaException("Invalid login");
         }
         Cookies.cookies = connection.getResponse().cookies();
+        Document document = connection.get();
+        user.logoutUrl = document.getElementsByClass("mdi-exit-to-app").first().parent().attr("href");
+        for(Element script : document.getElementsByTag("script")) {
+            if(script.attributes().size() == 0) {
+                String data = script.data();
+                for(String line : data.split("\n")) {
+                    if(line.contains("var my_post_key = ")) {
+                        user.postKey = line.substring("\tvar my_post_key = \"".length(), line.length() - 3);
+                        break;
+                    }
+                }
+            }
+        }
         return user;
     }
 }

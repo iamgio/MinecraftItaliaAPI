@@ -5,6 +5,7 @@ import eu.iamgio.mcitaliaapi.board.Board;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
 import eu.iamgio.mcitaliaapi.board.BoardPostComment;
 import eu.iamgio.mcitaliaapi.board.BoardPostReply;
+import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
 import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
@@ -29,8 +30,19 @@ import java.util.List;
  */
 public class LoggedUser extends User {
 
+    String logoutUrl, postKey;
+
     LoggedUser(String name) {
         super(name);
+    }
+
+    /**
+     * Logs out
+     */
+    public void logout() {
+        HttpConnection connection = new HttpConnection(logoutUrl).connect();
+        connection.post();
+        Cookies.cookies = connection.getResponse().cookies();
     }
 
     /**
@@ -100,7 +112,7 @@ public class LoggedUser extends User {
                 .data("lastpid", "1")
                 .data("message", text)
                 .data("method", "quickreply")
-                .data("my_post_key", getPostKey())
+                .data("my_post_key", postKey)
                 .data("posthash", topic.getPostHash())
                 .data("postoptions[signature]", "1")
                 .data("subject", topic.getReplySubject())
@@ -117,7 +129,7 @@ public class LoggedUser extends User {
      * @throws MinecraftItaliaException if an error occurred
      */
     public void editPost(TopicPost post, String text) throws MinecraftItaliaException {
-        Document document = new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php?action=edit_post&do=update_post&pid=" + post.getId() + "&my_post_key=" + getPostKey()).connect()
+        Document document = new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php?action=edit_post&do=update_post&pid=" + post.getId() + "&my_post_key=" + postKey).connect()
                 .data("id", "pid_" + post.getId())
                 .data("value", text)
                 .post();
@@ -135,7 +147,7 @@ public class LoggedUser extends User {
         if(poll.isLocked()) throw new MinecraftItaliaException("Poll is locked.");
         new HttpConnection("https://www.minecraft-italia.it/forum/polls.php")
                 .data("action", "vote")
-                .data("my_post_key", getPostKey())
+                .data("my_post_key", postKey)
                 .data("option", String.valueOf(option + 1))
                 .data("pid", String.valueOf(poll.getId()))
                 .post();
@@ -146,8 +158,10 @@ public class LoggedUser extends User {
      * @param text Text of the message
      */
     public void sendTagboardMessage(String text) {
-        new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php?action=dvz_sb_shout&text=" + text + "&key=" + getPostKey())
-                .connect()
+        new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php").connect()
+                .data("action", "dvz_sb_shout")
+                .data("key", postKey)
+                .data("text", text)
                 .post();
     }
 

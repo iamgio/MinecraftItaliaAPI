@@ -24,9 +24,9 @@ import java.util.List;
 public class User {
 
     private String url;
-    private Document document;
+    protected Document document;
 
-    private String name, postKey;
+    private String name;
     private Long uid;
 
     User(String name) {
@@ -115,16 +115,6 @@ public class User {
             status = 2;
         }
         return new Login(new LoggedUser(this.name), connection, status);
-    }
-
-    /**
-     * @return User's post key
-     */
-    public String getPostKey() {
-        if(postKey == null) {
-            postKey = document.select("input[name=my_post_key]").attr("value");
-        }
-        return postKey;
     }
 
     /**

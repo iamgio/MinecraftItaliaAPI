@@ -77,7 +77,7 @@ public class NewTopic {
         String quoted_ids = document.select("input[name=quoted_ids]").attr("value");
 
         String requestBody =
-                "-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"my_post_key\"\n\n" + user.getPostKey() + "\n" +
+                "-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"my_post_key\"\n\n" + user.postKey + "\n" +
                         "-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"threadprefix\"\n\n" + prefixValue + "\n" +
                         "-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"subject\"\n\n" + title + "\n" +
                         "-----------------------------" + boundary + "\nContent-Disposition: form-data; name=\"message\"\n\n" + text + "\n" +
