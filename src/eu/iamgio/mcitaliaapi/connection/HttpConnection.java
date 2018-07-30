@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 /**
  * Connection to any common website
@@ -115,6 +116,11 @@ public class HttpConnection {
      */
     public HttpConnection data(String k, String name, InputStream inputStream) {
         this.connection = connection.data(k, name, inputStream);
+        return this;
+    }
+
+    public HttpConnection cookies(Map<String, String> cookies) {
+        this.connection = connection.cookies(cookies);
         return this;
     }
 

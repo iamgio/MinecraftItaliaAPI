@@ -2,10 +2,9 @@ package eu.iamgio.mcitaliaapi.user;
 
 import eu.iamgio.mcitaliaapi.board.Board;
 import eu.iamgio.mcitaliaapi.board.BoardPost;
-import eu.iamgio.mcitaliaapi.connection.Cookies;
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
-import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.connection.json.JSONParser;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -94,10 +93,9 @@ public class User {
     /**
      * Logins
      * @param password Password
-     * @return Logged user
-     * @throws MinecraftItaliaException if credentials are invalid
+     * @return New login session
      */
-    public LoggedUser login(String password) throws MinecraftItaliaException {
+    public Login login(String password) {
         HttpConnection connection = new HttpConnection("https://www.minecraft-italia.it/forum/member.php").connect();
         Document documentDummy = connection.data("action", "do_login").post();
         String postKey = documentDummy.select("input[name=my_post_key]").attr("value");
@@ -110,11 +108,13 @@ public class User {
                 .data("url", "//www.minecraft-italia.it/forum")
                 .data("username", name)
                 .post();
-        if(document.getElementById("dropdown-profile-menu") == null) {
-            throw new MinecraftItaliaException("Invalid credentials.");
+        byte status = 0;
+        if(document.getElementById("modal-2fa") != null) {
+            status = 1;
+        } else if(document.getElementById("dropdown-profile-menu") == null) {
+            status = 2;
         }
-        Cookies.cookies = connection.getResponse().cookies();
-        return new LoggedUser(this.name);
+        return new Login(new LoggedUser(this.name), connection, status);
     }
 
     /**
