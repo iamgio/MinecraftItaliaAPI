@@ -128,4 +128,11 @@ public class ListedServer {
     public int getVotesToday() {
         return votesToday;
     }
+
+    /**
+     * @return Listed server to actual server
+     */
+    public Server toServer() {
+        return Server.fromStringId(stringId);
+    }
 }
