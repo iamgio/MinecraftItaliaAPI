@@ -8,6 +8,7 @@ import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -410,6 +411,29 @@ public class User {
      */
     public List<BoardPost> getTargetedBoardPosts(BoardPost start) {
         return Board.getBoardPosts("https://www.minecraft-italia.it/board/get_posts?filter[type]=private-with-replies&filter[uid]=" + getUid() + "&start=" + start.getId());
+    }
+
+    /**
+     * @return Servers owned by the user as [name, string id, address, image url]
+     * @throws MinecraftItaliaException if an error occurred
+     */
+    public List<String[]> getServers() throws MinecraftItaliaException {
+        JSONObject json = new JSONParser("https://www.minecraft-italia.it/user/index_ajax/" + name + "/servers").parse();
+        if(json.get("status").toString().equals("error")) throw new MinecraftItaliaException(json.get("descr").toString());
+        JSONObject data = (JSONObject) json.get("data");
+        Document document = Jsoup.parse(data.get("html").toString());
+        List<String[]> servers = new ArrayList<>();
+        for(Element serverElement : document.getElementsByClass("server-box")) {
+            Element serverImage = serverElement.getElementsByClass("server-box-image").first();
+            String style = serverImage.attr("style");
+            String imageUrl = style.substring("background-image: url('".length(), style.length() - 3);
+            String[] urlParts = serverImage.attr("href").split("/");
+            String stringId = urlParts[urlParts.length - 1];
+            String name = serverElement.getElementsByClass("server-box-title").first().text();
+            String address = serverElement.getElementsByClass("server-box-ip").first().text();
+            servers.add(new String[] {name, stringId, address, imageUrl});
+        }
+        return servers;
     }
 
     public enum Gender { MALE, FEMALE }
