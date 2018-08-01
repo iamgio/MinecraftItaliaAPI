@@ -120,7 +120,7 @@ public class Topic {
             UnparsedUser user = new UnparsedUser(authorElement.getElementsByClass("username-inner").first().text());
             Element statisticsElement = authorElement.getElementsByClass("author_statistics").first();
             String[] statisticsParts = statisticsElement.ownText().split(" ");
-            int usersMessagesCount = Integer.parseInt(statisticsParts[1].replace(",", ""));
+            int userMessagesCount = Integer.parseInt(statisticsParts[1].replace(",", ""));
             String rawRegistrationDate = statisticsParts[statisticsParts.length - 2] + " " + statisticsParts[statisticsParts.length - 1];
             Date registrationDate = null;
             try {
@@ -128,14 +128,14 @@ public class Topic {
             } catch(ParseException e) {
                 e.printStackTrace();
             }
-            int usersTopicsCount = Integer.parseInt(statisticsElement.getElementsByClass("postbit_userthreads").first().ownText().replace(",", "").split(" ")[1]);
+            int userTopicsCount = Integer.parseInt(statisticsElement.getElementsByClass("postbit_userthreads").first().ownText().replace(",", "").split(" ")[1]);
             String[] likesReceivedParts = statisticsElement.getElementsByClass("postbit_tylreceived").first().ownText().replace(",", "").split(" ");
-            int usersLikesReceivedCount = Integer.parseInt(likesReceivedParts[2]);
-            int usersLikedPostsCount = Integer.parseInt(likesReceivedParts[4]);
-            int usersLikesGivenCount = Integer.parseInt(statisticsElement.getElementsByClass("postbit_tylgiven").first().ownText().replace(",", "").split(" ")[2]);
-            List<String> usersBadges = new ArrayList<>();
+            int userLikesReceivedCount = Integer.parseInt(likesReceivedParts[2]);
+            int userLikedPostsCount = Integer.parseInt(likesReceivedParts[4]);
+            int userLikesGivenCount = Integer.parseInt(statisticsElement.getElementsByClass("postbit_tylgiven").first().ownText().replace(",", "").split(" ")[2]);
+            List<String> userBadges = new ArrayList<>();
             for(Element badge : document.getElementsByClass("my-badge-inner")) {
-                usersBadges.add(badge.text());
+                userBadges.add(badge.text());
             }
             boolean userOnline = authorElement.getElementsByClass("online-status").first().attr("title").equals("Online");
             List<UnparsedUser> likeGivers = new ArrayList<>();
@@ -147,8 +147,8 @@ public class Topic {
             }
             String plainText = bodyElement.text();
             String html = bodyElement.html();
-            String usersSignatureHtml = signatureElement == null ? "" : signatureElement.html();
-            posts.add(new TopicPost(id, plainText, html, user, usersMessagesCount, usersTopicsCount, usersLikesReceivedCount, usersLikedPostsCount, usersLikesGivenCount, usersBadges, rawRegistrationDate, registrationDate, userOnline, likeGivers, usersSignatureHtml));
+            String userSignatureHtml = signatureElement == null ? "" : signatureElement.html();
+            posts.add(new TopicPost(id, plainText, html, user, userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount, userBadges, rawRegistrationDate, registrationDate, userOnline, likeGivers, userSignatureHtml));
         }
         return posts;
     }

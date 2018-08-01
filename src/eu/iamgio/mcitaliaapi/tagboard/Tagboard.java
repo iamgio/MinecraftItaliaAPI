@@ -43,9 +43,9 @@ public class Tagboard {
             }
             String text = entry.getElementsByClass("text").first().ownText();
             long id = Long.parseLong(entry.attr("data-id"));
-            long usersId = Long.parseLong(entry.getElementsByClass("username").first().attr("data-id"));
+            long userId = Long.parseLong(entry.getElementsByClass("username").first().attr("data-id"));
             Date date = Utils.getDateByTimestamp(entry.getElementsByClass("date time").first().attr("data-timestamp"));
-            messages.add(new TagboardMessage(user, target, id, text, usersId, date));
+            messages.add(new TagboardMessage(user, target, id, text, userId, date));
         }
         return messages;
     }

@@ -127,7 +127,7 @@ public class Forum {
     /**
      * @return Today's online users count
      */
-    public int getTodaysOnlineUsersCount() {
+    public int getTodayOnlineUsersCount() {
         return Integer.parseInt(document.getElementById("boardstats_e").getElementsByClass("trow1").get(1).ownText().split(" ")[0]);
     }
 
