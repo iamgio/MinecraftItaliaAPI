@@ -13,18 +13,16 @@ public class TagboardMessage {
     private UnparsedUser user, target;
     private long id;
     private String text;
-    private long usersUid;
+    private long userUid;
     private Date date;
-    private String usersAvatarUrl;
 
-    public TagboardMessage(UnparsedUser user, UnparsedUser target, long id, String text, long usersUid, Date date, String usersAvatarUrl) {
+    public TagboardMessage(UnparsedUser user, UnparsedUser target, long id, String text, long userUid, Date date) {
         this.user = user;
         this.target = target;
         this.id = id;
         this.text = text;
-        this.usersUid = usersUid;
+        this.userUid = userUid;
         this.date = date;
-        this.usersAvatarUrl = usersAvatarUrl;
     }
 
     /**
@@ -58,8 +56,8 @@ public class TagboardMessage {
     /**
      * @return Author's UID
      */
-    public long getUsersUid() {
-        return usersUid;
+    public long getUserUid() {
+        return userUid;
     }
 
     /**
@@ -67,12 +65,5 @@ public class TagboardMessage {
      */
     public Date getDate() {
         return date;
-    }
-
-    /**
-     * @return Author's avatar URL
-     */
-    public String getUsersAvatarUrl() {
-        return usersAvatarUrl;
     }
 }
