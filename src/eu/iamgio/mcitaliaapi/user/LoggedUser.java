@@ -356,4 +356,38 @@ public class LoggedUser extends User {
         }
         return users;
     }
+
+    /**
+     * @param fid ID of the category
+     * @param page Initial page
+     * @return Panel of private messages
+     */
+    public UserPrivateMessagesPanel getPrivateMessagesPanel(int fid, int page) {
+        return new UserPrivateMessagesPanel(fid, page);
+    }
+
+    /**
+     * @param fid ID of the category
+     * @return Panel of private messages
+     */
+    public UserPrivateMessagesPanel getPrivateMessagesPanel(int fid) {
+        return new UserPrivateMessagesPanel(fid);
+    }
+
+    /**
+     * @param category Category
+     * @return Panel of private messages
+     */
+    public UserPrivateMessagesPanel getPrivateMessagesPanel(PrivateMessageCategory category) {
+        return new UserPrivateMessagesPanel(category);
+    }
+
+    /**
+     * @param category Category
+     * @param page Initial page
+     * @return Panel of private messages
+     */
+    public UserPrivateMessagesPanel getPrivateMessagesPanel(PrivateMessageCategory category, int page) {
+        return new UserPrivateMessagesPanel(category);
+    }
 }
