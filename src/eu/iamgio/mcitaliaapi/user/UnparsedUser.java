@@ -25,6 +25,13 @@ public class UnparsedUser {
     }
 
     /**
+     * @return URL of Minecraft skin icon
+     */
+    public String getMinecraftSkinIconUrl() {
+        return "https://www.minecraft-italia.it/utils/minepic_avatar/" + name;
+    }
+
+    /**
      * @return Parsed user
      */
     public User toParsedUser() {
