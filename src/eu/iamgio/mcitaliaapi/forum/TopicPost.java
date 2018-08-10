@@ -23,13 +23,14 @@ public class TopicPost {
     private List<String> userBadges;
     private String rawRegistrationDate;
     private Date registrationDate;
+    private String userAvatarUrl;
     private boolean userOnline;
 
     private List<UnparsedUser> likeGivers;
 
     private String userSignatureHtml;
 
-    TopicPost(long id, String plainText, String html, UnparsedUser user, int userMessagesCount, int userTopicsCount, int userLikesReceivedCount, int userLikedPostsCount, int userLikesGivenCount, List<String> userBadges, String rawRegistrationDate, Date registrationDate, boolean userOnline, List<UnparsedUser> likeGivers, String userSignatureHtml) {
+    TopicPost(long id, String plainText, String html, UnparsedUser user, int userMessagesCount, int userTopicsCount, int userLikesReceivedCount, int userLikedPostsCount, int userLikesGivenCount, List<String> userBadges, String rawRegistrationDate, Date registrationDate, String userAvatarUrl, boolean userOnline, List<UnparsedUser> likeGivers, String userSignatureHtml) {
         this.id = id;
         this.plainText = plainText;
         this.html = html;
@@ -42,13 +43,14 @@ public class TopicPost {
         this.userBadges = userBadges;
         this.rawRegistrationDate = rawRegistrationDate;
         this.registrationDate = registrationDate;
+        this.userAvatarUrl = userAvatarUrl;
         this.userOnline = userOnline;
         this.likeGivers = likeGivers;
         this.userSignatureHtml = userSignatureHtml;
     }
 
     /**
-     * @return Post ID
+     * @return Post ID. <tt>-1</tt> if cannot be fetched
      */
     public long getId() {
         return id;
@@ -129,6 +131,13 @@ public class TopicPost {
      */
     public Date getRegistrationDate() {
         return registrationDate;
+    }
+
+    /**
+     * @return User's avatar URL
+     */
+    public String getUserAvatarUrl() {
+        return userAvatarUrl;
     }
 
     /**

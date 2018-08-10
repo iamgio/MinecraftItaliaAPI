@@ -112,8 +112,8 @@ public class Topic {
         }
         List<TopicPost> posts = new ArrayList<>();
         for(Element postElement : document.getElementsByClass("post")) {
-            String pid = postElement.attr("id");
-            long id = Long.parseLong(pid.substring("pid_".length() + 1, pid.length()));
+            String pid = postElement.attr("data-post-id");
+            long id = pid.isEmpty() ? -1 : Long.parseLong(pid);
             Element authorElement = postElement.getElementsByClass("post_author").first();
             Element bodyElement = postElement.getElementsByClass("post_body").first();
             Element signatureElement = postElement.getElementsByClass("signature").first();
@@ -137,6 +137,7 @@ public class Topic {
             for(Element badge : document.getElementsByClass("my-badge-inner")) {
                 userBadges.add(badge.text());
             }
+            String userAvatarUrl = authorElement.getElementsByClass("author_avatar").first().getElementsByTag("img").first().attr("src");
             boolean userOnline = authorElement.getElementsByClass("online-status").first().attr("title").equals("Online");
             List<UnparsedUser> likeGivers = new ArrayList<>();
             Element likeGiversElement = postElement.getElementsByClass("post_controls tyllist").first();
@@ -148,7 +149,7 @@ public class Topic {
             String plainText = bodyElement.text();
             String html = bodyElement.html();
             String userSignatureHtml = signatureElement == null ? "" : signatureElement.html();
-            posts.add(new TopicPost(id, plainText, html, user, userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount, userBadges, rawRegistrationDate, registrationDate, userOnline, likeGivers, userSignatureHtml));
+            posts.add(new TopicPost(id, plainText, html, user, userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount, userBadges, rawRegistrationDate, registrationDate, userAvatarUrl, userOnline, likeGivers, userSignatureHtml));
         }
         return posts;
     }
