@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi.user;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import eu.iamgio.mcitaliaapi.util.Pair;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -55,6 +56,19 @@ public class UserPrivateMessagesPanel {
      */
     public int getUsedSpacePerc() {
         return Integer.parseInt(document.getElementsByClass("pmspace_text").text().replaceAll("[^\\d]", ""));
+    }
+
+    /**
+     * @return Message categories as [name, ID]
+     */
+    public List<Pair<String, Integer>> getMessageCategories() {
+        final String s = "https://www.minecraft-italia.it/forum/private.php?fid=";
+        List<Pair<String, Integer>> categories = new ArrayList<>();
+        for(Element element : document.getElementById("nav-left").getElementsByAttributeValueStarting("href", s)) {
+            String url = element.attr("href");
+            categories.add(new Pair<>(element.text(), Integer.parseInt(url.substring(s.length(), url.length()))));
+        }
+        return categories;
     }
 
     /**
