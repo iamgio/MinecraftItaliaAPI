@@ -45,4 +45,11 @@ public class ListedPrivateMessage {
     public String getRawDate() {
         return rawDate;
     }
+
+    /**
+     * @return Listed private message to actual private message
+     */
+    public PrivateMessage toPrivateMessage() {
+        return PrivateMessage.fromId(id);
+    }
 }

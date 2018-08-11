@@ -390,4 +390,12 @@ public class LoggedUser extends User {
     public UserPrivateMessagesPanel getPrivateMessagesPanel(PrivateMessageCategory category, int page) {
         return new UserPrivateMessagesPanel(category);
     }
+
+    /**
+     * @param id Private message ID (pmid). <tt>null</tt> if it doesn't exist
+     * @return Private message from ID
+     */
+    public PrivateMessage getPrivateMessage(long id) {
+        return PrivateMessage.fromId(id);
+    }
 }
