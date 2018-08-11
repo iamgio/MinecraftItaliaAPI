@@ -118,6 +118,11 @@ public class User {
         return new Login(new LoggedUser(this.name), connection, status);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof User && name.equalsIgnoreCase(((User) obj).name);
+    }
+
     /**
      * @return User's name
      */
