@@ -17,10 +17,12 @@ import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -397,5 +399,36 @@ public class LoggedUser extends User {
      */
     public PrivateMessage getPrivateMessage(long id) {
         return PrivateMessage.fromId(id);
+    }
+
+    /**
+     * Sends a private message to other user(s)
+     * @param message Message
+     * @throws PrivateMessage.PrivateMessageException if there are some errors that must be fixed in the message
+     */
+    public void sendPrivateMessage(PrivateMessage.New message) throws PrivateMessage.PrivateMessageException {
+        Document document = new HttpConnection("https://www.minecraft-italia.it/forum/private.php").connect()
+                .data("action", "do_send")
+                .data("bcc", "")
+                .data("do", "")
+                .data("message", message.getText())
+                .data("my_post_key", postKey)
+                .data("options[disablesmilies]", message.isDisableSmilies() ? "1" : "0")
+                .data("options[readreceipt]", message.isReadReceipt() ? "1" : "0")
+                .data("options[savecopy]", message.isSaveCopy() ? "1" : "0")
+                .data("options[signature]", message.isSignature() ? "1" : "0")
+                .data("pmid", String.valueOf(message.getQuoteId()))
+                .data("subject", message.getSubject())
+                .data("submit", "Invia")
+                .data("to", message.getTargetsString())
+                .post();
+        Element errorsElement = document.getElementsByClass("notice-danger").first();
+        if(errorsElement != null) {
+            List<String> errors = new ArrayList<>();
+            for(Element error : errorsElement.getElementsByTag("li")) {
+                errors.add(error.text());
+            }
+            throw new PrivateMessage.PrivateMessageException(errors);
+        }
     }
 }

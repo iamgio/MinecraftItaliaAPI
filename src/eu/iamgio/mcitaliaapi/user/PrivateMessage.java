@@ -1,6 +1,7 @@
 package eu.iamgio.mcitaliaapi.user;
 
 import eu.iamgio.mcitaliaapi.connection.HttpConnection;
+import eu.iamgio.mcitaliaapi.exception.MinecraftItaliaException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Represents a private message
+ * Represents a private text
  * @author Gio
  */
 public class PrivateMessage {
@@ -94,7 +95,7 @@ public class PrivateMessage {
     }
 
     /**
-     * @return Private message ID (pmid)
+     * @return Private text ID (pmid)
      */
     public long getId() {
         return id;
@@ -115,7 +116,7 @@ public class PrivateMessage {
     }
 
     /**
-     * @return Author of the message
+     * @return Author of the text
      */
     public UnparsedUser getUser() {
         return user;
@@ -203,5 +204,144 @@ public class PrivateMessage {
      */
     public String getUserSignatureHtml() {
         return userSignatureHtml;
+    }
+
+    /**
+     * Class used to build new private messages
+     */
+    public static class New {
+
+        private String targetsString = "", text = "", subject = "";
+        private boolean disableSmilies, readReceipt = true, saveCopy = true, signature = true;
+        private long quoteId = 0;
+
+        String getTargetsString() {
+            return targetsString;
+        }
+
+        /**
+         * Adds a target user
+         * @param target Target user name
+         * @return This for concatenating
+         */
+        public New addTarget(String target) {
+            this.targetsString = (targetsString.isEmpty() ? "" : ",") + target;
+            return this;
+        }
+
+        String getText() {
+            return text;
+        }
+
+        /**
+         * Sets text
+         * @param text Message text
+         * @return This for concatenating
+         */
+        public New withMessage(String text) {
+            this.text = text;
+            return this;
+        }
+
+        String getSubject() {
+            return subject;
+        }
+
+        /**
+         * Sets subject
+         * @param subject Message subject
+         * @return This for concatenating
+         */
+        public New withSubject(String subject) {
+            this.subject = subject;
+            return this;
+        }
+
+        boolean isDisableSmilies() {
+            return disableSmilies;
+        }
+
+        /**
+         * Disable smilies on/off
+         * @param disableSmilies <tt>true</tt> to disable smilies
+         * @return This for concatenating
+         */
+        public New disableSmilies(boolean disableSmilies) {
+            this.disableSmilies = disableSmilies;
+            return this;
+        }
+
+        boolean isReadReceipt() {
+            return readReceipt;
+        }
+
+        /**
+         * Read receipt on/off
+         * @param readReceipt <tt>true</tt> to enable read receipt
+         * @return This for concatenating
+         */
+        public New readReceipt(boolean readReceipt) {
+            this.readReceipt = readReceipt;
+            return this;
+        }
+
+        boolean isSaveCopy() {
+            return saveCopy;
+        }
+
+        /**
+         * Save copy on/off
+         * @param saveCopy <tt>true</tt> to save copy
+         * @return This for concatenating
+         */
+        public New saveCopy(boolean saveCopy) {
+            this.saveCopy = saveCopy;
+            return this;
+        }
+
+        boolean isSignature() {
+            return signature;
+        }
+
+        /**
+         * Signature on/off
+         * @param signature <tt>true</tt> to enable signature
+         * @return This for concatenating
+         */
+        public New signature(boolean signature) {
+            this.signature = signature;
+            return this;
+        }
+
+        public long getQuoteId() {
+            return quoteId;
+        }
+
+        /**
+         * Quote another message
+         * @param messageId Message ID
+         * @return This for concatenating
+         */
+        public New quote(long messageId) {
+            this.quoteId = messageId;
+            return this;
+        }
+    }
+
+    public static class PrivateMessageException extends MinecraftItaliaException {
+
+        private List<String> errors;
+
+        PrivateMessageException(List<String> errors) {
+            super("Could not send private message: \n\t•  " + String.join("\n\t•  ", errors));
+            this.errors = errors;
+        }
+
+        /**
+         * @return List of errors
+         */
+        public List<String> getErrors() {
+            return errors;
+        }
     }
 }
