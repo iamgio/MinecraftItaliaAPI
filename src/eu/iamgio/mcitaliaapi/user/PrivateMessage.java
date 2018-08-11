@@ -132,42 +132,42 @@ public class PrivateMessage {
     /**
      * @return User's amount of messages sent
      */
-    public int getuserMessagesCount() {
+    public int getUserMessagesCount() {
         return userMessagesCount;
     }
 
     /**
      * @return User's amount of topics created
      */
-    public int getuserTopicsCount() {
+    public int getUserTopicsCount() {
         return userTopicsCount;
     }
 
     /**
      * @return User's amount of likes received
      */
-    public int getuserLikesReceivedCount() {
+    public int getUserLikesReceivedCount() {
         return userLikesReceivedCount;
     }
 
     /**
      * @return User's amount of posts that received likes
      */
-    public int getuserLikedPostsCount() {
+    public int getUserLikedPostsCount() {
         return userLikedPostsCount;
     }
 
     /**
      * @return User's likes given
      */
-    public int getuserLikesGivenCount() {
+    public int getUserLikesGivenCount() {
         return userLikesGivenCount;
     }
 
     /**
      * @return User's badges
      */
-    public List<String> getuserBadges() {
+    public List<String> getUserBadges() {
         return userBadges;
     }
 
