@@ -17,12 +17,13 @@ public class TopicPost {
 
     private UnparsedUser user;
 
+    private String rawDate;
 
     // These values can be gained through User but they are loaded here too to prevent other connections
     private int userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount;
     private List<String> userBadges;
-    private String rawRegistrationDate;
-    private Date registrationDate;
+    private String userRawRegistrationDate;
+    private Date userRegistrationDate;
     private String userAvatarUrl;
     private boolean userOnline;
 
@@ -30,19 +31,20 @@ public class TopicPost {
 
     private String userSignatureHtml;
 
-    TopicPost(long id, String plainText, String html, UnparsedUser user, int userMessagesCount, int userTopicsCount, int userLikesReceivedCount, int userLikedPostsCount, int userLikesGivenCount, List<String> userBadges, String rawRegistrationDate, Date registrationDate, String userAvatarUrl, boolean userOnline, List<UnparsedUser> likeGivers, String userSignatureHtml) {
+    TopicPost(long id, String plainText, String html, UnparsedUser user, String rawDate, int userMessagesCount, int userTopicsCount, int userLikesReceivedCount, int userLikedPostsCount, int userLikesGivenCount, List<String> userBadges, String userRawRegistrationDate, Date userRegistrationDate, String userAvatarUrl, boolean userOnline, List<UnparsedUser> likeGivers, String userSignatureHtml) {
         this.id = id;
         this.plainText = plainText;
         this.html = html;
         this.user = user;
+        this.rawDate = rawDate;
         this.userMessagesCount = userMessagesCount;
         this.userTopicsCount = userTopicsCount;
         this.userLikesReceivedCount = userLikesReceivedCount;
         this.userLikedPostsCount = userLikedPostsCount;
         this.userLikesGivenCount = userLikesGivenCount;
         this.userBadges = userBadges;
-        this.rawRegistrationDate = rawRegistrationDate;
-        this.registrationDate = registrationDate;
+        this.userRawRegistrationDate = userRawRegistrationDate;
+        this.userRegistrationDate = userRegistrationDate;
         this.userAvatarUrl = userAvatarUrl;
         this.userOnline = userOnline;
         this.likeGivers = likeGivers;
@@ -75,6 +77,13 @@ public class TopicPost {
      */
     public UnparsedUser getUser() {
         return user;
+    }
+
+    /**
+     * @return Raw date
+     */
+    public String getRawDate() {
+        return rawDate;
     }
 
     /**
@@ -122,15 +131,15 @@ public class TopicPost {
     /**
      * @return Raw user's registration date
      */
-    public String getRawRegistrationDate() {
-        return rawRegistrationDate;
+    public String getUserRawRegistrationDate() {
+        return userRawRegistrationDate;
     }
 
     /**
      * @return User's registration date
      */
-    public Date getRegistrationDate() {
-        return registrationDate;
+    public Date getUserRegistrationDate() {
+        return userRegistrationDate;
     }
 
     /**

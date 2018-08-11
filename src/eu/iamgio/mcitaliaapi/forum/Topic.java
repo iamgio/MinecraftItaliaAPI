@@ -118,6 +118,7 @@ public class Topic {
             Element bodyElement = postElement.getElementsByClass("post_body").first();
             Element signatureElement = postElement.getElementsByClass("signature").first();
             UnparsedUser user = new UnparsedUser(authorElement.getElementsByClass("username-inner").first().text());
+            String rawDate = postElement.getElementsByClass("post_date").first().ownText();
             Element statisticsElement = authorElement.getElementsByClass("author_statistics").first();
             String[] statisticsParts = statisticsElement.ownText().split(" ");
             int userMessagesCount = Integer.parseInt(statisticsParts[1].replace(",", ""));
@@ -149,7 +150,7 @@ public class Topic {
             String plainText = bodyElement.text();
             String html = bodyElement.html();
             String userSignatureHtml = signatureElement == null ? "" : signatureElement.html();
-            posts.add(new TopicPost(id, plainText, html, user, userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount, userBadges, rawRegistrationDate, registrationDate, userAvatarUrl, userOnline, likeGivers, userSignatureHtml));
+            posts.add(new TopicPost(id, plainText, html, user, rawDate, userMessagesCount, userTopicsCount, userLikesReceivedCount, userLikedPostsCount, userLikesGivenCount, userBadges, rawRegistrationDate, registrationDate, userAvatarUrl, userOnline, likeGivers, userSignatureHtml));
         }
         return posts;
     }
