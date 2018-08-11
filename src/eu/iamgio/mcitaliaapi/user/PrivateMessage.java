@@ -201,7 +201,7 @@ public class PrivateMessage {
     /**
      * @return User's signature content as HTML
      */
-    public String getuserSignatureHtml() {
+    public String getUserSignatureHtml() {
         return userSignatureHtml;
     }
 }
