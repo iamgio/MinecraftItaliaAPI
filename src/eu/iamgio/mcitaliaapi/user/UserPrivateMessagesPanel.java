@@ -82,8 +82,9 @@ public class UserPrivateMessagesPanel {
             String url = titleElement.getElementsByTag("a").first().attr("href");
             long id = Long.parseLong(url.substring("private.php?action=read&pmid=".length(), url.length()));
             UnparsedUser user = new UnparsedUser(element.getElementsByClass("pm-author").text());
-            String rawDate = document.getElementsByClass("pm-lastpost-date").text();
-            messages.add(new ListedPrivateMessage(subject, user, id, rawDate));
+            String rawDate = element.getElementsByClass("pm-lastpost-date").text();
+            boolean read = element.getElementsByClass("pm-icon").first().attr("data-tooltip").equals("Messaggi vecchi");
+            messages.add(new ListedPrivateMessage(subject, user, id, rawDate, read));
         }
         return messages;
     }

@@ -10,12 +10,14 @@ public class ListedPrivateMessage {
     private UnparsedUser user;
     private long id;
     private String rawDate;
+    private boolean read;
 
-    ListedPrivateMessage(String subject, UnparsedUser user, long id, String rawDate) {
+    ListedPrivateMessage(String subject, UnparsedUser user, long id, String rawDate, boolean read) {
         this.subject = subject;
         this.user = user;
         this.id = id;
         this.rawDate = rawDate;
+        this.read = read;
     }
 
     /**
@@ -44,6 +46,13 @@ public class ListedPrivateMessage {
      */
     public String getRawDate() {
         return rawDate;
+    }
+
+    /**
+     * @return <tt>true</tt> if the message was read
+     */
+    public boolean isRead() {
+        return read;
     }
 
     /**
