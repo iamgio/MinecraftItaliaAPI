@@ -13,6 +13,7 @@ import eu.iamgio.mcitaliaapi.forum.ForumSubSection;
 import eu.iamgio.mcitaliaapi.forum.Topic;
 import eu.iamgio.mcitaliaapi.forum.TopicPoll;
 import eu.iamgio.mcitaliaapi.forum.TopicPost;
+import eu.iamgio.mcitaliaapi.util.Pair;
 import eu.iamgio.mcitaliaapi.util.Utils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -76,6 +77,14 @@ public class LoggedUser extends User {
      */
     public List<Notification> getNotifications() {
         return getNotifications(0, 15);
+    }
+
+    /**
+     * @return Unread count as [notifications, private messages]
+     */
+    public Pair<Integer, Integer> getUnreadCount() {
+        JSONObject json = new JSONParser("https://www.minecraft-italia.it/notification/get_count").parse();
+        return new Pair<>(Integer.parseInt(json.get("unread").toString()), Integer.parseInt(json.get("unread_pm").toString()));
     }
 
     /**
