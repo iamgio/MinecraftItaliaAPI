@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,6 +46,36 @@ public class LoggedUser extends User {
         HttpConnection connection = new HttpConnection(logoutUrl).connect();
         connection.post();
         Cookies.cookies = connection.getResponse().cookies();
+    }
+
+    /**
+     * @param from Start index
+     * @param size List size
+     * @return User's notifications
+     */
+    public List<Notification> getNotifications(int from, int size) {
+        JSONObject json = new JSONParser(
+                "https://www.minecraft-italia.it/notification/get?s=" + from + "&l=" + size
+        ).parse();
+        List<Notification> notifications = new ArrayList<>();
+        for(Object obj : (JSONArray) json.get("notifications")) {
+            JSONObject notificationJson = (JSONObject) obj;
+            long id = (long) notificationJson.get("id");
+            long fromUid = (long) notificationJson.get("fromid");
+            String html = notificationJson.get("notify").toString();
+            Date date = Utils.getDateByTimestamp(notificationJson.get("timestamp").toString());
+            boolean viewed = notificationJson.get("viewed").toString().equals("1");
+            notifications.add(new Notification(id, fromUid, html, date, viewed));
+        }
+        return notifications;
+    }
+
+    /**
+     * @return User's first 15 notifications
+     * @see #getNotifications(int, int)
+     */
+    public List<Notification> getNotifications() {
+        return getNotifications(0, 15);
     }
 
     /**
