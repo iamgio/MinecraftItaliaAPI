@@ -100,10 +100,10 @@ public enum ServerCategory {
             url += "&version=" + versionsString;
         }
         if(orderField != null) {
-            url += "&order_field" + orderField.value();
+            url += "&order_field=" + orderField.value();
         }
         if(orderType != null) {
-            url += "&order_type" + orderType.value();
+            url += "&order_type=" + orderType.value();
         }
         JSONObject json = new JSONParser(url).parse();
         if(json.get("status").equals("error")) {
