@@ -144,8 +144,8 @@ public class User {
      * @return <tt>true</tt> if the user is online
      */
     public boolean isOnline() {
-        return document.getElementsByClass("profile-info").first().getElementsByClass("color-online").first()
-                .text().equals("Online");
+        Element element = document.getElementsByClass("profile-info").first().getElementsByClass("color-online").first();
+        return element != null && element.text().equals("Online");
     }
 
     /**
