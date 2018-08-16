@@ -13,11 +13,11 @@ public class JSONParser {
 
     private String json;
 
-    public JSONParser(String url) {
+    public JSONParser(String url) throws RuntimeException {
         try {
             this.json = new HttpConnection(url).read();
         } catch(Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         }
     }
 

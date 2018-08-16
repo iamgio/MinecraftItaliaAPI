@@ -129,7 +129,12 @@ public class Server {
      */
     public static Server fromStringId(String stringId) throws MinecraftItaliaException {
         stringId = stringId.toLowerCase();
-        JSONObject json = new JSONParser("https://www.minecraft-italia.it/api/server-info/" + stringId).parse();
+        JSONObject json;
+        try {
+            json = new JSONParser("https://www.minecraft-italia.it/api/server-info/" + stringId).parse();
+        } catch(RuntimeException e) {
+            throw new MinecraftItaliaException("Could not find server '" + stringId + "'");
+        }
         if(json.get("status").equals("error")) {
             throw new MinecraftItaliaException(json.get("message").toString());
         }
