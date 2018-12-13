@@ -198,7 +198,9 @@ public class LoggedUser extends User {
     /**
      * Sends a message to tagboard
      * @param text Text of the message
+     * @deprecated The tagboard has been deleted from the website
      */
+    @Deprecated
     public void sendTagboardMessage(String text) {
         new HttpConnection("https://www.minecraft-italia.it/forum/xmlhttp.php").connect()
                 .data("action", "dvz_sb_shout")
@@ -211,7 +213,9 @@ public class LoggedUser extends User {
      * Sends a private message to any user in tagboard
      * @param text Text of the message
      * @param uid Target player's UID
+     * @deprecated The tagboard has been deleted from the website
      */
+    @Deprecated
     public void sendTagboardPrivateMessage(String text, long uid) {
         sendTagboardMessage("/pvt " + uid + " " + text);
     }

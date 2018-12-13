@@ -6,8 +6,10 @@ import java.util.Date;
 
 /**
  * Represent a {@link Tagboard} message
+ * @deprecated The tagboard has been deleted from the website
  * @author Gio
  */
+@Deprecated
 public class TagboardMessage {
 
     private UnparsedUser user, target;

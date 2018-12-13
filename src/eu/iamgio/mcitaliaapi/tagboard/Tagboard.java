@@ -13,8 +13,10 @@ import java.util.List;
 
 /**
  * Represents the tagboard
+ * @deprecated The tagboard has been deleted from the website
  * @author Gio
  */
+@Deprecated
 public class Tagboard {
 
     private static Tagboard instance;
